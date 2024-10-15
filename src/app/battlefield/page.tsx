@@ -24,7 +24,7 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { generateRandomCode } from '@/utils';
-import { DraggableCardItem } from '@/app/components/draggable-card-item';
+import { DraggableCardItem, DraggableOverlayCardItem } from '@/app/components/draggable-card-item';
 import { useMotionValue, useSpring, useTransform, useVelocity } from 'framer-motion';
 
 const initialItems = [...Array(2).keys()].map(() => generateRandomCode());
@@ -35,15 +35,15 @@ export default function Page() {
   const [battlefieldItems, setBattlefieldItems] = useState(initialItems);
   const [opponentCards, setOpponentCards] = useState(opponentHand);
   const [playerCards, setPlayerCards] = useState(playerHand);
-  const [coord, setCoord] = useState({ x: 0, y: 0 });
+  const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
   const [act, setAct] = useState<any>(null);
 
   function handleDragMove(event: DragMoveEvent) {
-    // const { delta } = event;
-    // setCoord({
-    //   x: coord.x + delta.x,
-    //   y: coord.y + delta.y,
-    // });
+    const { delta } = event;
+    setDragDelta({
+      x: delta.x,
+      y: delta.y,
+    });
   }
 
   function handleDragStart(event: DragStartEvent) {
@@ -94,26 +94,8 @@ export default function Page() {
         );
       }
     }
+    setAct(null);
   }
-
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const xSmooth = useSpring(x || 0, { damping: 0, stiffness: 10 });
-  const ySmooth = useSpring(y || 0, { damping: 0, stiffness: 10 });
-  const xVelocity = useVelocity(xSmooth);
-  const yVelocity = useVelocity(ySmooth);
-  const rotateY = useTransform(xVelocity, [-1000, 0, 1000], [-20, 0, 20], {
-    clamp: true,
-  });
-  const rotateX = useTransform(yVelocity, [-1000, 0, 1000], [20, 0, -20], {
-    clamp: true,
-  });
-
-  useEffect(() => {
-    x.set(coord?.x || 0);
-    y.set(coord?.y || 0);
-  }, [coord]);
 
   return (
     <div className={'grid grid-cols-8 gap-2 grid-rows-1 h-full w-full'}>
@@ -131,13 +113,7 @@ export default function Page() {
             <PlayerArea cards={playerCards} />
           </SortableContext>
           <DragOverlay>
-            <DraggableCardItem
-              rotate={{
-                x: rotateX,
-                y: rotateY,
-              }}
-              overlay={true}
-            />
+            {act ? <DraggableOverlayCardItem id={act.id} dragDelta={dragDelta} /> : null}
           </DragOverlay>
         </DndContext>
       </div>
