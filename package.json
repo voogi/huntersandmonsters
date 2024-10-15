@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prettier": "npx prettier --write \"**/*.{js,ts,jsx,tsx,css,scss,html,json,md}\""
+    "prettier": "npx prettier --write \"**/*.{js,ts,jsx,tsx,css,scss,html,json,md}\"",
+    "prepare": "husky install"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",
@@ -23,9 +24,15 @@
     "@types/react-dom": "^18",
     "eslint": "^8",
     "eslint-config-next": "14.2.15",
+    "husky": "^9.1.6",
+    "lint-staged": "^15.2.10",
     "postcss": "^8",
     "prettier": "^3.3.3",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
+  },
+  "lint-staged": {
+    "*.js": "eslint --cache --fix",
+    "*.{js,ts,jsx,tsx,css,md}": "prettier --write"
   }
 }
