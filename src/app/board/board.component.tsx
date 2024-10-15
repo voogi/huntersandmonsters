@@ -1,40 +1,28 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import PlayerArea from '@/app/battlefield/components/player-area/player-area';
-import OpponentArea from '@/app/battlefield/components/opponent-area/opponent-area';
-import BattleArea from '@/app/battlefield/components/battle-area/battle-area';
-import HistoryArea from '@/app/battlefield/components/history area/history-area';
+import React, {  useState } from 'react';
+import PlayerArea from '@/app/board/components/player-area/player-area';
+import OpponentArea from '@/app/board/components/opponent-area/opponent-area';
+import BattleArea from '@/app/board/components/battle-area/battle-area';
+import HistoryArea from '@/app/board/components/history area/history-area';
 import {
-  Active,
   closestCenter,
-  closestCorners,
   DndContext,
   DragEndEvent,
   DragMoveEvent,
   DragOverEvent,
   DragOverlay,
   DragStartEvent,
-  DroppableContainer,
-  MouseSensor,
-  PointerSensor,
-  pointerWithin,
-  TouchSensor,
-  useSensor,
-  useSensors,
 } from '@dnd-kit/core';
-import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { arrayMove, SortableContext } from '@dnd-kit/sortable';
 import { generateRandomCode } from '@/utils';
-import { DraggableCardItem, DraggableOverlayCardItem } from '@/app/components/draggable-card-item';
-import { useMotionValue, useSpring, useTransform, useVelocity } from 'framer-motion';
+import { DraggableOverlayCardItem } from '@/app/components/draggable-card-item';
 
 const initialItems = [...Array(2).keys()].map(() => generateRandomCode());
-const opponentHand = [...Array(2).keys()].map(() => generateRandomCode());
 const playerHand = [...Array(2).keys()].map(() => generateRandomCode());
 
-export default function Page() {
-  const [battlefieldItems, setBattlefieldItems] = useState(initialItems);
-  const [opponentCards, setOpponentCards] = useState(opponentHand);
-  const [playerCards, setPlayerCards] = useState(playerHand);
+export default function BoardComponent() {
+  const [battlefieldItems, setBattlefieldItems] = useState<any>(initialItems);
+  const [playerCards, setPlayerCards] = useState<any>(playerHand);
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
   const [act, setAct] = useState<any>(null);
 
@@ -53,8 +41,8 @@ export default function Page() {
 
   function handleDragOver(event: DragOverEvent) {
     const { active, over } = event;
-    if (active.data.current.sortable.containerId !== over.data.current.sortable.containerId) {
-      if (active.data.current.sortable.containerId === 'playerCardsSortable') {
+    if (active?.data?.current?.sortable.containerId !== over?.data.current?.sortable.containerId) {
+      if (active?.data?.current?.sortable.containerId === 'playerCardsSortable') {
         console.log('BATTLEFIELD_SET', `${active?.id}-${over?.id}`);
         console.log('ACTIVE', `${act?.id}`);
         const idx = playerCards.findIndex((i: any) => i === active.id);
@@ -75,22 +63,17 @@ export default function Page() {
 
     if (over) {
       if (active.data.current?.sortable.containerId === 'battlefieldCardsSortable') {
-        setBattlefieldItems((battlefieldItems) =>
+        setBattlefieldItems((battlefieldItems: any) =>
           arrayMove(
             battlefieldItems,
             battlefieldItems.indexOf(event.active.id),
-            battlefieldItems.indexOf(event.over.id)
+            battlefieldItems.indexOf(event?.over?.id)
           )
         );
       }
-      if (active.data.current?.sortable.containerId === 'opponentCardsSortable') {
-        setOpponentCards((opponentCards) =>
-          arrayMove(opponentCards, opponentCards.indexOf(event.active.id), opponentCards.indexOf(event.over.id))
-        );
-      }
       if (active.data.current?.sortable.containerId === 'playerCardsSortable') {
-        setPlayerCards((playerCards) =>
-          arrayMove(playerCards, playerCards.indexOf(event.active.id), playerCards.indexOf(event.over.id))
+        setPlayerCards((playerCards: any) =>
+          arrayMove(playerCards, playerCards.indexOf(event.active.id), playerCards.indexOf(event.over?.id))
         );
       }
     }
@@ -107,7 +90,7 @@ export default function Page() {
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <OpponentArea cards={opponentCards} />
+          <OpponentArea cards={[]} />
           <SortableContext id="battlefieldCardsSortable" items={battlefieldItems}>
             <BattleArea cards={battlefieldItems} />
             <PlayerArea cards={playerCards} />
