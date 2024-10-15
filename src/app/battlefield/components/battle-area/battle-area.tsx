@@ -10,15 +10,13 @@ export default function BattleArea() {
   const [items, setItems] = useState(initialItems);
 
   function handleDragEnd(event: DragEndEvent) {
-    setItems((items) =>
-      arrayMove(items, items.indexOf(event.active.id), items.indexOf(event.over?.id)),
-    );
+    setItems((items) => arrayMove(items, items.indexOf(event.active.id), items.indexOf(event.over.id)));
   }
+
   return (
     <div
-      style={{ flexGrow: 2 }}
       className={
-        'bg-stone-700 content-center w-full p-4 box-border flex justify-center shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] rounded-md'
+        'bg-stone-700 flex-grow content-center w-full p-4 box-border flex justify-center shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] rounded-md'
       }
     >
       <DndContext
@@ -26,10 +24,7 @@ export default function BattleArea() {
         // onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div
-          className={"grid grid-cols-4 gap-3 w-2/3 mx-auto mt-10"}
-          style={{ perspective: 800 }}
-        >
+        <div className={'grid grid-cols-4 gap-2 w-2/3 mx-auto mt-10'} style={{ perspective: 800 }}>
           <SortableContext strategy={rectSortingStrategy} items={items}>
             {items.map((id) => (
               <DraggableCardItem key={id} id={id} />
@@ -42,6 +37,6 @@ export default function BattleArea() {
 }
 
 function generateRandomCode() {
-  let n = (Math.random() * 0xfffff * 1000000).toString(16);
+  const n: string = (Math.random() * 0xfffff * 1000000).toString(16);
   return n.slice(0, 6);
 }

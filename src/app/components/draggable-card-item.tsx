@@ -6,21 +6,13 @@ import { CSS } from '@dnd-kit/utilities';
 
 const ANIMATION_DURATION_MS = 750;
 
-export const DraggableCardItem = ({ id }) => {
-
+export const DraggableCardItem = ({ id }: any) => {
   const sortable = useSortable({
     id,
     transition: { duration: ANIMATION_DURATION_MS, easing: 'ease' },
   });
 
-  const {
-    setNodeRef,
-    attributes,
-    transform,
-    transition,
-    listeners,
-    isDragging,
-  } = sortable;
+  const { setNodeRef, attributes, transform, transition, listeners, isDragging } = sortable;
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -43,27 +35,20 @@ export const DraggableCardItem = ({ id }) => {
 
   return (
     <div ref={setNodeRef}>
-
       <motion.div
         style={{
           transform: CSS.Transform.toString(transform),
           transition,
         }}
-        className={classNames(
-          isDragging && 'absolute',
-          isDragging && 'z-50',
-        )}
+        className={classNames(isDragging && 'absolute', isDragging && 'z-50')}
         transition={{
           type: 'spring',
-          duration: isDragging
-            ? ANIMATION_DURATION_MS / 1000
-            : (ANIMATION_DURATION_MS / 1000) * 3,
+          duration: isDragging ? ANIMATION_DURATION_MS / 1000 : (ANIMATION_DURATION_MS / 1000) * 3,
         }}
         {...attributes}
         {...listeners}
       >
         <motion.div
-
           style={{
             boxShadow: '0px 2px 4px rgba(0,0,0,0.6)',
             transformStyle: 'preserve-3d',
@@ -74,9 +59,7 @@ export const DraggableCardItem = ({ id }) => {
           animate={{
             scale: isDragging ? 1.5 : 1,
           }}
-          className={classNames(
-            'h-48 bg-white w-36 rounded-md bg-[url("/wolf.webp")] bg-cover bg-center',
-          )}
+          className={classNames('h-48 bg-white w-36 rounded-md bg-[url("/wolf.webp")] bg-cover bg-center')}
         ></motion.div>
       </motion.div>
     </div>

@@ -5,7 +5,7 @@ export default function PlayerArea() {
   return (
     <div
       className={
-        'bg-stone-600 content-center w-full p-4 box-border flex justify-center shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] rounded-md gap-3'
+        'bg-stone-600 flex-grow content-center w-full p-4 box-border flex justify-center shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] rounded-md gap-3'
       }
     >
       <div className={'flex flex-row'}>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import Header from '@/app/components/header/header';
+import Footer from '@/app/components/footer/footer';
 
 const anton = localFont({
   // src: "./fonts/badaboom.ttf",
@@ -22,9 +23,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${anton.className} antialiased p-2`} style={{ minHeight: '100vh' }}>
+      <body className={`${anton.className} antialiased p-2 flex flex-col`} style={{ minHeight: '100vh' }}>
         <Header />
-        {children}
+        <div className={'flex-1 w-full items-center justify-center flex'}>{children}</div>
+        <Footer />
       </body>
     </html>
   );
