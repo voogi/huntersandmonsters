@@ -75,7 +75,7 @@ export const DraggableCardItem = ({ id }) => {
             scale: isDragging ? 1.5 : 1,
           }}
           className={classNames(
-            'h-48 bg-white w-36 rounded-md bg-[url(\'/wolf.webp\')] bg-cover bg-center',
+            'h-48 bg-white w-36 rounded-md bg-[url("/wolf.webp")] bg-cover bg-center',
           )}
         ></motion.div>
       </motion.div>
