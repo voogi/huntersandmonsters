@@ -1,9 +1,10 @@
 import React from 'react';
 import BoardComponent from '@/app/board/board.component';
+import { fetchBoardData } from '@/app/board/board.fetcher';
 
-export default function Page() {
-
+export default async function Page() {
+  const data = await fetchBoardData();
   return (
-    <BoardComponent />
+    <BoardComponent data={data}/>
   );
 }

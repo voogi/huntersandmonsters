@@ -14,15 +14,11 @@ import {
   DragStartEvent,
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from '@dnd-kit/sortable';
-import { generateRandomCode } from '@/utils';
 import { DraggableOverlayCardItem } from '@/app/components/draggable-card-item';
 
-const initialItems = [...Array(2).keys()].map(() => generateRandomCode());
-const playerHand = [...Array(2).keys()].map(() => generateRandomCode());
-
-export default function BoardComponent() {
-  const [battlefieldItems, setBattlefieldItems] = useState<any>(initialItems);
-  const [playerCards, setPlayerCards] = useState<any>(playerHand);
+export default function BoardComponent({ data } : any) {
+  const [battlefieldItems, setBattlefieldItems] = useState<any>(data?.boardCards);
+  const [playerCards, setPlayerCards] = useState<any>(data.playerCards);
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
   const [act, setAct] = useState<any>(null);
 
@@ -43,14 +39,10 @@ export default function BoardComponent() {
     const { active, over } = event;
     if (active?.data?.current?.sortable.containerId !== over?.data.current?.sortable.containerId) {
       if (active?.data?.current?.sortable.containerId === 'playerCardsSortable') {
-        console.log('BATTLEFIELD_SET', `${active?.id}-${over?.id}`);
-        console.log('ACTIVE', `${act?.id}`);
         const idx = playerCards.findIndex((i: any) => i === active.id);
         setBattlefieldItems([...battlefieldItems, ...playerCards.splice(idx, 1)]);
         setPlayerCards([...playerCards]);
       } else {
-        console.log('PLAYER_SET', `${active?.id}-${over?.id}`);
-        console.log('ACTIVE', `${act?.id}`);
         const idx = battlefieldItems.findIndex((i: any) => i === active.id);
         setPlayerCards([...playerCards, ...battlefieldItems.splice(idx, 1)]);
         setBattlefieldItems([...battlefieldItems]);
