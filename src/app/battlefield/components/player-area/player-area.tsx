@@ -1,7 +1,9 @@
 'use client';
 import React from 'react';
+import { SortableContext } from '@dnd-kit/sortable';
+import { DraggableCardItem } from '@/app/components/draggable-card-item';
 
-export default function PlayerArea() {
+export default function PlayerArea({ cards }: { cards: any }) {
   return (
     <div
       className={
@@ -9,10 +11,11 @@ export default function PlayerArea() {
       }
     >
       <div className={'flex flex-row'}>
-        <img className={'rounded-lg'} style={{ maxHeight: '16em', objectFit: 'contain' }} src="/wolf.webp" alt="wolf" />
-        <img className={'rounded-lg'} style={{ maxHeight: '16em', objectFit: 'contain' }} src="/wolf.webp" alt="wolf" />
-        <img className={'rounded-lg'} style={{ maxHeight: '16em', objectFit: 'contain' }} src="/wolf.webp" alt="wolf" />
-        <img className={'rounded-lg'} style={{ maxHeight: '16em', objectFit: 'contain' }} src="/wolf.webp" alt="wolf" />
+        <div className={'grid grid-cols-4 gap-2 w-2/3 mx-auto mt-10'}>
+          <SortableContext id="playerCardsSortable" items={cards}>
+            {cards?.map((id: any) => <DraggableCardItem key={id} id={id} />)}
+          </SortableContext>
+        </div>
       </div>
       <div>resource 5/5</div>
     </div>
