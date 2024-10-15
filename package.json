@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prettier": "npx prettier --write \"**/*.{js,ts,jsx,tsx,css,scss,html,json,md}\""
   },
   "dependencies": {
     "@dnd-kit/core": "^6.1.0",

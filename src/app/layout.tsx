@@ -1,17 +1,17 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import "./globals.css";
+import type { Metadata } from 'next';
+import localFont from 'next/font/local';
+import './globals.css';
 
 const anton = localFont({
   // src: "./fonts/badaboom.ttf",
   // src: "./fonts/AntonSC-Regular.ttf",
-  src: "./fonts/Anta-Regular.ttf",
-  variable: "--font-anton",
-    weight: '400'
+  src: './fonts/Anta-Regular.ttf',
+  variable: '--font-anton',
+  weight: '400',
 });
 
 export const metadata: Metadata = {
-  title: "Hunters and Monsters",
+  title: 'Hunters and Monsters',
 };
 
 export default function RootLayout({
@@ -21,11 +21,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${anton.className} antialiased`}
-      >
-        {children}
-      </body>
+      <body className={`${anton.className} antialiased`}>{children}</body>
     </html>
   );
 }
