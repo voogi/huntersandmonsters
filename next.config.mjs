@@ -4,7 +4,7 @@ const nextConfig = {
     return [
       {
         source: '/',
-        destination: '/battlefield',
+        destination: '/board',
         permanent: true, // Állítsd true-ra, ha állandó átirányítást szeretnél (301-es HTTP státuszkód)
       },
     ];
