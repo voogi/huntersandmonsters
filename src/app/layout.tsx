@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
+import Header from '@/app/components/header/header';
 
 const anton = localFont({
   // src: "./fonts/badaboom.ttf",
@@ -21,7 +22,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${anton.className} antialiased`}>{children}</body>
+      <body className={`${anton.className} antialiased p-2`} style={{ minHeight: '100vh' }}>
+        <Header />
+        {children}
+      </body>
     </html>
   );
 }
