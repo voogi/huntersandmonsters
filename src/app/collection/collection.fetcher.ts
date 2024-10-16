@@ -1,16 +1,18 @@
-import { generateCards } from '@/utils';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
 
 export async function fetchCollection() {
-  /*  const response = await fetch('https://api.example.com/users');
+  try {
+    const ownedCards = await prisma.card.findMany();
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch data');
-    }
-
-    const data = await response.json();
-    return data;*/
-
-  return {
-    ownedCards: generateCards(4),
-  };
+    return {
+      ownedCards,
+    };
+  } catch (error) {
+    console.error('Hiba történt az adatok lekérése közben:', error);
+    throw new Error('Failed to fetch cards from the database.');
+  } finally {
+    await prisma.$disconnect();
+  }
 }

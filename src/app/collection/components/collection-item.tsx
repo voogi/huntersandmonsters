@@ -15,7 +15,7 @@ export default function CollectionItem({ card }: CollectionItemProps) {
           onClick={() => setIsCentered(!isCentered)}
           className={classNames('h-48 bg-white w-36 rounded-md bg-cover bg-center')}
           style={{ backgroundImage: `url(${card.image})` }}
-        />
+        >{card.name}</div>
       )}
       {isCentered && (
         <motion.div
