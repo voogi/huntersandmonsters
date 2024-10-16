@@ -25,7 +25,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${anton.className} antialiased p-2 flex flex-col`} style={{ minHeight: '100vh' }}>
         <Header />
-        <div className={'flex-1 w-full items-center justify-center flex'}>{children}</div>
+        <div className={'flex-1 w-full flex'}>{children}</div>
         <Footer />
       </body>
     </html>

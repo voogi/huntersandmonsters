@@ -11,13 +11,10 @@ export default function PlayerArea({ cards }: { cards: any }) {
       }
     >
       <div className={'flex flex-row'}>
-        <div className={'grid grid-cols-4 gap-2 w-2/3 mx-auto mt-10'}>
-          <SortableContext id="playerCardsSortable" items={cards}>
-            {cards?.map((id: any) => <DraggableCardItem key={id} id={id} />)}
-          </SortableContext>
-        </div>
+        <SortableContext id="playerCardsSortable" items={cards}>
+          {cards?.map((id: any) => <DraggableCardItem key={id} id={id} />)}
+        </SortableContext>
       </div>
-      <div>resource 5/5</div>
     </div>
   );
 }

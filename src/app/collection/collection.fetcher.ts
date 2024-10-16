@@ -1,4 +1,4 @@
-import { generateRandomCode } from '@/utils';
+import { generateCards } from '@/utils';
 
 export async function fetchCollection() {
   /*  const response = await fetch('https://api.example.com/users');
@@ -11,7 +11,6 @@ export async function fetchCollection() {
     return data;*/
 
   return {
-    owedCards: [...Array(2).keys()].map(() => generateRandomCode()),
-  }
-
+    ownedCards: generateCards(4),
+  };
 }
