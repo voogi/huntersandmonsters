@@ -31,3 +31,37 @@ model Card {
   rarity      Rarity
   tier        Int
 }
+
+model Player {
+  id          Int           @id @default(autoincrement())
+  name        String
+  cards       Player_Cards[]
+  decks       Player_Decks[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model Player_Cards {
+  id          Int           @id @default(autoincrement())
+  player      Player        @relation(fields: [playerId], references: [id])
+  playerId    Int
+  cardId      Int           // ID of the card in the card collection
+  quantity    Int           // How many of this card the player owns
+}
+
+model Player_Decks {
+  id          Int           @id @default(autoincrement())
+  player      Player        @relation(fields: [playerId], references: [id])
+  playerId    Int
+  deckName    String        // The name of the deck
+  deckCards   Deck_Cards[]  // Cards included in this deck
+}
+
+model Deck_Cards {
+  id          Int           @id @default(autoincrement())
+  deck        Player_Decks  @relation(fields: [deckId], references: [id])
+  deckId      Int
+  cardId      Int           // ID of the card in the card collection
+  quantity    Int           // Number of this card in the deck
+}
+
