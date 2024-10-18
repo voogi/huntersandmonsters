@@ -1,27 +1,29 @@
 'use client';
-
-import { Card } from '@/app/models';
 import React, { useState } from 'react';
 import CollectionItem from '@/app/collection/components/collection-item';
+import DeckCreatorComponent from '@/app/collection/components/deck-creator.component';
+import { Card, Player_Decks } from '@prisma/client';
 
 type CollectionComponentProps = {
   ownedCards: Card[];
+  playerDecks: Player_Decks[];
+  player: any;
 };
 
-export default function CollectionComponent({ ownedCards }: CollectionComponentProps) {
-  const [selectedRarity, setSelectedRarity] = useState<string>(''); // Állapot a rarity szűréséhez
+export default function CollectionComponent({ ownedCards, playerDecks, player }: CollectionComponentProps) {
+  const [selectedRarity, setSelectedRarity] = useState<string>('');
 
-  // Rarity szűrő funkció
   const filteredCards = ownedCards?.filter((card) => {
-    if (!selectedRarity) return true; // Ha nincs kiválasztva semmi, akkor minden kártyát megjelenítünk
-    return (card.rarity as unknown as string ) === selectedRarity;
+    if (!selectedRarity) return true;
+    return (card.rarity as unknown as string) === selectedRarity;
   });
 
   return (
-    <div>
-      {/* Rarity szűrő UI */}
-      <div className="mb-4">
-        <label htmlFor="rarity" className="mr-2">Filter by Rarity:</label>
+    <div className={'h-full'}>
+      <div className="mb-4 p-2">
+        <label htmlFor="rarity" className="mr-2">
+          Filter by Rarity:
+        </label>
         <select
           id="rarity"
           value={selectedRarity}
@@ -33,15 +35,14 @@ export default function CollectionComponent({ ownedCards }: CollectionComponentP
           <option value="RARE">Rare</option>
           <option value="EPIC">Epic</option>
           <option value="LEGENDARY">Legendary</option>
-          {/* További rarity opciókat itt adhatsz hozzá */}
         </select>
       </div>
 
-      {/* Kártyák megjelenítése */}
       <div className="flex flex-row gap-4 mt-10 p-2">
-        {filteredCards?.map((card: Card) => (
-          <CollectionItem card={card} key={card.id} />
-        ))}
+        {filteredCards?.map((card: Card) => <CollectionItem card={card} key={card.id} />)}
+      </div>
+      <div className={'mt-auto flex flex-row'}>
+        <DeckCreatorComponent player={player} decks={playerDecks} />
       </div>
     </div>
   );

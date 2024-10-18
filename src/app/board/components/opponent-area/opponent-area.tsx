@@ -1,8 +1,7 @@
 'use client';
 import React from 'react';
-import { DraggableCardItem } from '@/app/components/draggable-card-item';
 
-export default function OpponentArea({ cards }: { cards: any }) {
+export default function OpponentArea({}: { cards: any }) {
   return (
     <div
       className={
@@ -11,9 +10,7 @@ export default function OpponentArea({ cards }: { cards: any }) {
     >
       <div>resource 5/5</div>
       <div className={'flex flex-row'}>
-        <div className={'grid grid-cols-4 gap-2 w-2/3 mx-auto mt-10'}>
-          {/*{cards?.map((id: any) => <DraggableCardItem key={id} id={id} />)}*/}
-        </div>
+        <div className={'grid grid-cols-4 gap-2 w-2/3 mx-auto mt-10'}></div>
       </div>
     </div>
   );

@@ -29,15 +29,13 @@ export default function CollectionItem({ card }: CollectionItemProps) {
         onClick={handleClick}
         className={classNames('h-48 bg-white w-36 rounded-md bg-cover bg-center relative')}
         style={{ backgroundImage: `url(${card.image})` }}
-      >
-        {card.name}
-      </div>
+      ></div>
 
       {isCentered && (
         <motion.div
           initial={{ x: position.x, y: position.y, scale: 1 }}
           animate={{
-            x: `calc(50vw - ${cardDimensions.width / 2}px)`,  // Levonjuk a szélesség felét
+            x: `calc(50vw - ${cardDimensions.width / 2}px)`, // Levonjuk a szélesség felét
             y: `calc(50vh - ${cardDimensions.height / 2}px)`, // Levonjuk a magasság felét
             scale: 3,
           }}

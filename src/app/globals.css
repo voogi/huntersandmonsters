@@ -10,7 +10,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #171717;
-    --foreground: #ededed;
+    --foreground: rgba(119, 111, 119, 0.34);
   }
 }
 
