@@ -2,13 +2,11 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function fetchCollection() {
+export async function fetchHeader() {
   try {
-    const ownedCards: any[] = await prisma.card.findMany();
     const player: any = await prisma.player.findFirst();
 
     return {
-      ownedCards,
       player
     };
   } catch (error) {

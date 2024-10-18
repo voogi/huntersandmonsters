@@ -1,27 +1,14 @@
-'use client';
 import React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import HeaderMenu from '@/app/components/header/components/menu/header-menu';
+import { fetchHeader } from '@/app/components/header/header.fetcher';
 
-export default function Header() {
-  const pathname = usePathname();
-
-  const isActive = (path: string) => {
-    return pathname === path ? 'bg-stone-700' : '';
-  };
+export default async function Header() {
+  const { player } = await fetchHeader();
   return (
-    <div className={'content-left w-full flex justify-left box-border gap-3'}>
-      <div className={'p-2'}>DASHBOARD</div>
-      <Link href={'/board'} className={`p-2 ${isActive('/board')}`}>
-        GAME
-      </Link>
-      <Link href={'/collection'} className={`p-2 ${isActive('/collection')}`}>
-        COLLECTION
-      </Link>
-      <div className={'p-2'}>SETTINGS</div>
-      <Link href={'/test'} className={`p-2 ${isActive('/test')}`}>
-        TEST
-      </Link>
+    <div className={'flex flex-row justify-between p-2'}>
+      <HeaderMenu />
+      {player.name}
     </div>
+
   );
 }
