@@ -1,18 +1,22 @@
-import { generateRandomCode } from '@/utils';
+import { Battle } from '@prisma/client';
+import { prisma } from '../../../prisma';
 
 export async function fetchBoardData() {
-/*  const response = await fetch('https://api.example.com/users');
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch data');
-  }
-
-  const data = await response.json();
-  return data;*/
-
-  return {
-    boardCards: [...Array(2).keys()].map(() => generateRandomCode()),
-    playerCards: [...Array(2).keys()].map(() => generateRandomCode())
+  try {
+    const battle: Battle = await prisma.battle.findUnique({
+      where: {
+        id: 1,
+      },
+    });
+    console.log(battle);
+    return {
+      ...battle.state
+    };
+  } catch (error) {
+    console.error('Hiba történt az adatok lekérése közben:', error);
+    throw new Error('Failed to fetch cards from the database.');
+  } finally {
+    await prisma.$disconnect();
   }
 
 }

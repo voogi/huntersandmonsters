@@ -42,7 +42,7 @@ export const HamButton = ({ size, className, color, children, ref, isLoading, on
 
   return (
 
-    <div className={'relative'}>
+    <div className={'relative h-fit'}>
       <motion.div
 
         variants={animationVariants}
@@ -61,7 +61,7 @@ export const HamButton = ({ size, className, color, children, ref, isLoading, on
 
         </ExtendedVariants>
       </motion.div>
-      <div className={'absolute top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] font-semibold'}>
+      <div className={'absolute text-white top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] font-semibold'}>
         {children}
       </div>
     </div>

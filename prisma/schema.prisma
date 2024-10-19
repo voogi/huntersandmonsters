@@ -5,8 +5,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
@@ -20,7 +20,7 @@ enum Rarity {
 
 // Card modell definiálása
 model Card {
-  id          Int      @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   name        String
   description String
   image       String
@@ -33,35 +33,44 @@ model Card {
 }
 
 model Player {
-  id          Int           @id @default(autoincrement())
-  name        String
-  cards       Player_Cards[]
-  decks       Player_Decks[]
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  id        Int            @id @default(autoincrement())
+  name      String
+  cards     Player_Cards[]
+  decks     Player_Decks[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  battle    Battle?        @relation(fields: [battleId], references: [id])
+  battleId  Int?
 }
 
 model Player_Cards {
-  id          Int           @id @default(autoincrement())
-  player      Player        @relation(fields: [playerId], references: [id])
-  playerId    Int
-  cardId      Int           // ID of the card in the card collection
-  quantity    Int           // How many of this card the player owns
+  id       Int    @id @default(autoincrement())
+  player   Player @relation(fields: [playerId], references: [id])
+  playerId Int
+  cardId   Int // ID of the card in the card collection
+  quantity Int // How many of this card the player owns
 }
 
 model Player_Decks {
-  id          Int           @id @default(autoincrement())
-  player      Player        @relation(fields: [playerId], references: [id])
-  playerId    Int
-  deckName    String        // The name of the deck
-  deckCards   Deck_Cards[]  // Cards included in this deck
+  id        Int          @id @default(autoincrement())
+  player    Player       @relation(fields: [playerId], references: [id])
+  playerId  Int
+  deckName  String // The name of the deck
+  deckCards Deck_Cards[] // Cards included in this deck
 }
 
 model Deck_Cards {
-  id          Int           @id @default(autoincrement())
-  deck        Player_Decks  @relation(fields: [deckId], references: [id])
-  deckId      Int
-  cardId      Int           // ID of the card in the card collection
-  quantity    Int           // Number of this card in the deck
+  id       Int          @id @default(autoincrement())
+  deck     Player_Decks @relation(fields: [deckId], references: [id])
+  deckId   Int
+  cardId   Int // ID of the card in the card collection
+  quantity Int // Number of this card in the deck
 }
 
+model Battle {
+  id        Int      @id @default(autoincrement())
+  players   Player[]
+  state     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

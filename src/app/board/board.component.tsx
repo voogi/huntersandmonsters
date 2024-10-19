@@ -1,11 +1,10 @@
 'use client';
-import React, {  useState } from 'react';
+import React, { useState, useTransition } from 'react';
 import PlayerArea from '@/app/board/components/player-area/player-area';
 import OpponentArea from '@/app/board/components/opponent-area/opponent-area';
 import BattleArea from '@/app/board/components/battle-area/battle-area';
 import HistoryArea from '@/app/board/components/history area/history-area';
 import {
-  closestCenter,
   DndContext,
   DragEndEvent,
   DragMoveEvent,
@@ -15,12 +14,21 @@ import {
 } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from '@dnd-kit/sortable';
 import { DraggableOverlayCardItem } from '@/app/components/draggable-card-item';
+import { saveState } from '@/app/board/actions';
 
-export default function BoardComponent({ data } : any) {
+export default function BoardComponent({ data }: any) {
   const [battlefieldItems, setBattlefieldItems] = useState<any>(data?.boardCards);
   const [playerCards, setPlayerCards] = useState<any>(data.playerCards);
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
   const [act, setAct] = useState<any>(null);
+  const [isPending, startTransition] = useTransition();
+
+  const save = () => {
+    startTransition(async () => {
+      const response: any = await saveState(1, playerCards, battlefieldItems);
+      console.log(response);
+    });
+  };
 
   function handleDragMove(event: DragMoveEvent) {
     const { delta } = event;
@@ -37,39 +45,53 @@ export default function BoardComponent({ data } : any) {
 
   function handleDragOver(event: DragOverEvent) {
     const { active, over } = event;
-    if (active?.data?.current?.sortable.containerId !== over?.data.current?.sortable.containerId) {
-      if (active?.data?.current?.sortable.containerId === 'playerCardsSortable') {
+    if (over?.id === 'battleArea' ||
+      (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)) {
+      if (active?.data?.current?.sortable?.containerId === 'playerCardsSortable') {
+        console.log('over', over);
+        console.log('active', active);
         const idx = playerCards.findIndex((i: any) => i === active.id);
-        setBattlefieldItems([...battlefieldItems, ...playerCards.splice(idx, 1)]);
-        setPlayerCards([...playerCards]);
-      } else {
+        if (idx !== -1) {
+          setBattlefieldItems([...battlefieldItems, ...playerCards.splice(idx, 1)]);
+          setPlayerCards([...playerCards]);
+        }
+      }
+
+    }
+    if (over?.id === 'playerArea' ||
+      (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)) {
+      if (active?.data?.current?.sortable?.containerId === 'battlefieldCardsSortable') {
         const idx = battlefieldItems.findIndex((i: any) => i === active.id);
-        setPlayerCards([...playerCards, ...battlefieldItems.splice(idx, 1)]);
-        setBattlefieldItems([...battlefieldItems]);
+        console.log('over', over);
+        console.log('active', active);
+        if (idx !== -1) {
+          setPlayerCards([...playerCards, ...battlefieldItems.splice(idx, 1)]);
+          setBattlefieldItems([...battlefieldItems]);
+        }
       }
     }
   }
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event;
-
     if (over) {
-      if (active.data.current?.sortable.containerId === 'battlefieldCardsSortable') {
+      if (active.data.current?.sortable?.containerId === 'battlefieldCardsSortable') {
         setBattlefieldItems((battlefieldItems: any) =>
           arrayMove(
             battlefieldItems,
             battlefieldItems.indexOf(event.active.id),
-            battlefieldItems.indexOf(event?.over?.id)
-          )
+            battlefieldItems.indexOf(event?.over?.id),
+          ),
         );
       }
-      if (active.data.current?.sortable.containerId === 'playerCardsSortable') {
+      if (active.data.current?.sortable?.containerId === 'playerCardsSortable') {
         setPlayerCards((playerCards: any) =>
-          arrayMove(playerCards, playerCards.indexOf(event.active.id), playerCards.indexOf(event.over?.id))
+          arrayMove(playerCards, playerCards.indexOf(event.active.id), playerCards.indexOf(event.over?.id)),
         );
       }
     }
     setAct(null);
+    save();
   }
 
   return (
@@ -79,12 +101,13 @@ export default function BoardComponent({ data } : any) {
           onDragOver={handleDragOver}
           onDragStart={handleDragStart}
           onDragMove={handleDragMove}
-          collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
           <OpponentArea cards={[]} />
           <SortableContext id="battlefieldCardsSortable" items={battlefieldItems}>
             <BattleArea cards={battlefieldItems} />
+          </SortableContext>
+          <SortableContext id="playerCardsSortable" items={playerCards}>
             <PlayerArea cards={playerCards} />
           </SortableContext>
           <DragOverlay>
