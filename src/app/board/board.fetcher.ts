@@ -8,7 +8,6 @@ export async function fetchBoardData() {
         id: 1,
       },
     });
-    console.log(battle);
     return {
       ...battle.state
     };

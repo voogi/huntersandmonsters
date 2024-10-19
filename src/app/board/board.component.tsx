@@ -26,7 +26,6 @@ export default function BoardComponent({ data }: any) {
   const save = () => {
     startTransition(async () => {
       const response: any = await saveState(1, playerCards, battlefieldItems);
-      console.log(response);
     });
   };
 
@@ -48,8 +47,6 @@ export default function BoardComponent({ data }: any) {
     if (over?.id === 'battleArea' ||
       (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)) {
       if (active?.data?.current?.sortable?.containerId === 'playerCardsSortable') {
-        console.log('over', over);
-        console.log('active', active);
         const idx = playerCards.findIndex((i: any) => i === active.id);
         if (idx !== -1) {
           setBattlefieldItems([...battlefieldItems, ...playerCards.splice(idx, 1)]);
@@ -62,8 +59,6 @@ export default function BoardComponent({ data }: any) {
       (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)) {
       if (active?.data?.current?.sortable?.containerId === 'battlefieldCardsSortable') {
         const idx = battlefieldItems.findIndex((i: any) => i === active.id);
-        console.log('over', over);
-        console.log('active', active);
         if (idx !== -1) {
           setPlayerCards([...playerCards, ...battlefieldItems.splice(idx, 1)]);
           setBattlefieldItems([...battlefieldItems]);
