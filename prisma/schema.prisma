@@ -20,7 +20,7 @@ enum Rarity {
 
 // Card modell definiálása
 model Card {
-  id          Int    @id @default(autoincrement())
+  id          Int          @id @default(autoincrement())
   name        String
   description String
   image       String
@@ -30,17 +30,19 @@ model Card {
   attack      Int
   rarity      Rarity
   tier        Int
+  decks       Deck_Cards[]
 }
 
 model Player {
-  id        Int            @id @default(autoincrement())
-  name      String
-  cards     Player_Cards[]
-  decks     Player_Decks[]
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  battle    Battle?        @relation(fields: [battleId], references: [id])
-  battleId  Int?
+  id           Int            @id @default(autoincrement())
+  name         String
+  cards        Player_Cards[]
+  decks        Player_Decks[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  battle       Battle?        @relation(fields: [battleId], references: [id])
+  battleId     Int?
+  editedDeckId Int
 }
 
 model Player_Cards {
@@ -55,14 +57,15 @@ model Player_Decks {
   id        Int          @id @default(autoincrement())
   player    Player       @relation(fields: [playerId], references: [id])
   playerId  Int
-  deckName  String // The name of the deck
-  deckCards Deck_Cards[] // Cards included in this deck
+  deckName  String
+  deckCards Deck_Cards[]
 }
 
 model Deck_Cards {
   id       Int          @id @default(autoincrement())
-  deck     Player_Decks @relation(fields: [deckId], references: [id])
+  deck     Player_Decks @relation(fields: [deckId], references: [id], onDelete: Cascade)
   deckId   Int
+  card     Card         @relation(fields: [cardId], references: [id])
   cardId   Int // ID of the card in the card collection
   quantity Int // Number of this card in the deck
 }

@@ -5,8 +5,16 @@ export async function fetchCollection() {
   try {
     const ownedCards: Card[] = await prisma.card.findMany();
     const player: any = await prisma.player.findFirst();
-    const playerDecks: any = await prisma.player_Decks.findMany();
-
+    const playerDecks: any = await prisma.player_Decks.findMany({
+      where: { playerId: player.id },
+      include: {
+        deckCards: {
+          include: {
+            card: true,
+          },
+        },
+      },
+    });
     return {
       ownedCards,
       player,

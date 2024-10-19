@@ -2,7 +2,9 @@
 import React, { useState } from 'react';
 import CollectionItem from '@/app/collection/components/collection-item';
 import DeckCreatorComponent from '@/app/collection/components/deck-creator.component';
-import { Card, Player_Decks } from '@prisma/client';
+import { Card, Deck_Cards, Player_Decks } from '@prisma/client';
+import { Select, SelectItem } from '@nextui-org/react';
+import { rarityOptions } from '@/app/models';
 
 type CollectionComponentProps = {
   ownedCards: Card[];
@@ -19,29 +21,36 @@ export default function CollectionComponent({ ownedCards, playerDecks, player }:
   });
 
   return (
-    <div className={'h-full'}>
-      <div className="mb-4 p-2">
-        <label htmlFor="rarity" className="mr-2">
-          Filter by Rarity:
-        </label>
-        <select
-          id="rarity"
-          value={selectedRarity}
+    <div className={'h-full w-full flex flex-row box-border'}>
+      <div className="mb-4 p-2 flex flex-col box-border" style={{ flex: '66%' }}>
+        <Select
+          size="sm"
+          label="Rarity"
+          className="max-w-2xl text-sm"
           onChange={(e) => setSelectedRarity(e.target.value)}
-          className="border p-1 rounded"
         >
-          <option value="">All</option>
-          <option value="COMMON">Common</option>
-          <option value="RARE">Rare</option>
-          <option value="EPIC">Epic</option>
-          <option value="LEGENDARY">Legendary</option>
-        </select>
+          {rarityOptions.map((rarity) => (
+            <SelectItem key={rarity.key}>{rarity.label}</SelectItem>
+          ))}
+        </Select>
+        <div className="flex flex-row gap-4 mt-10 p-2">
+          {filteredCards?.map((card: Card) => (
+            <CollectionItem inDeck={false} player={player} card={card} key={card.id} />
+          ))}
+        </div>
+        <div className="flex flex-row gap-4 mt-10 p-2">
+          {playerDecks
+            ?.filter((i: any) => i.id === player.editedDeckId)
+            .map((deck: Player_Decks) => (
+              <React.Fragment key={deck.id}>
+                {deck.deckCards?.map((dCard: Deck_Cards) => (
+                  <CollectionItem inDeck={true} player={player} card={dCard.card} key={dCard.id} />
+                ))}
+              </React.Fragment>
+            ))}
+        </div>
       </div>
-
-      <div className="flex flex-row gap-4 mt-10 p-2">
-        {filteredCards?.map((card: Card) => <CollectionItem card={card} key={card.id} />)}
-      </div>
-      <div className={'mt-auto flex flex-row'}>
+      <div className={'flex flex-col box-border'} style={{ flex: '33%' }}>
         <DeckCreatorComponent player={player} decks={playerDecks} />
       </div>
     </div>
