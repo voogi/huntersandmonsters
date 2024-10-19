@@ -18,6 +18,11 @@ enum Rarity {
   LEGENDARY
 }
 
+enum ResourceType {
+  SILVER_BULLET
+  BLOOD_DROP
+}
+
 // Card modell definiálása
 model Card {
   id          Int          @id @default(autoincrement())
@@ -43,6 +48,18 @@ model Player {
   battle       Battle?        @relation(fields: [battleId], references: [id])
   battleId     Int?
   editedDeckId Int
+  resources Resource[]
+}
+
+model Resource {
+  id        Int          @id @default(autoincrement())
+  type      ResourceType // A resource típusa enum-ként
+  playerId  Int
+  player    Player       @relation(fields: [playerId], references: [id])
+  quantity  Int          // Mennyi erőforrás áll rendelkezésre
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  @@unique([playerId, type])
 }
 
 model Player_Cards {
