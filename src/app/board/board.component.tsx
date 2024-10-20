@@ -4,14 +4,7 @@ import PlayerArea from '@/app/board/components/player-area/player-area';
 import OpponentArea from '@/app/board/components/opponent-area/opponent-area';
 import BattleArea from '@/app/board/components/battle-area/battle-area';
 import HistoryArea from '@/app/board/components/history area/history-area';
-import {
-  DndContext,
-  DragEndEvent,
-  DragMoveEvent,
-  DragOverEvent,
-  DragOverlay,
-  DragStartEvent,
-} from '@dnd-kit/core';
+import { DndContext, DragEndEvent, DragMoveEvent, DragOverEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext } from '@dnd-kit/sortable';
 import { DraggableOverlayCardItem } from '@/app/components/draggable-card-item';
 import { saveState } from '@/app/board/actions';
@@ -44,8 +37,10 @@ export default function BoardComponent({ data }: any) {
 
   function handleDragOver(event: DragOverEvent) {
     const { active, over } = event;
-    if (over?.id === 'battleArea' ||
-      (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)) {
+    if (
+      over?.id === 'battleArea' ||
+      (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)
+    ) {
       if (active?.data?.current?.sortable?.containerId === 'playerCardsSortable') {
         const idx = playerCards.findIndex((i: any) => i === active.id);
         if (idx !== -1) {
@@ -53,10 +48,11 @@ export default function BoardComponent({ data }: any) {
           setPlayerCards([...playerCards]);
         }
       }
-
     }
-    if (over?.id === 'playerArea' ||
-      (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)) {
+    if (
+      over?.id === 'playerArea' ||
+      (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)
+    ) {
       if (active?.data?.current?.sortable?.containerId === 'battlefieldCardsSortable') {
         const idx = battlefieldItems.findIndex((i: any) => i === active.id);
         if (idx !== -1) {
@@ -103,11 +99,9 @@ export default function BoardComponent({ data }: any) {
             <BattleArea cards={battlefieldItems} />
           </SortableContext>
           <SortableContext id="playerCardsSortable" items={playerCards}>
-            <PlayerArea cards={playerCards} />
+            <PlayerArea cards={playerCards} player={data.player} />
           </SortableContext>
-          <DragOverlay>
-            {act ? <DraggableOverlayCardItem id={act.id} dragDelta={dragDelta} /> : null}
-          </DragOverlay>
+          <DragOverlay>{act ? <DraggableOverlayCardItem id={act.id} dragDelta={dragDelta} /> : null}</DragOverlay>
         </DndContext>
       </div>
       <HistoryArea />

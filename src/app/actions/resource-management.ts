@@ -1,9 +1,10 @@
+'use server';
 import { prisma } from '../../../prisma';
 import { ResourceType } from '@prisma/client';
+import { revalidatePath } from 'next/cache';
 
-
-export async function useResource(playerId: number, resourceType: ResourceType, quantity: number) {
-  const resource = await prisma.resource.update({
+export async function removeResource(playerId: number, resourceType: ResourceType, quantity: number) {
+  const resource: any = await prisma.resource.update({
     where: {
       playerId_type: {
         playerId: playerId,
@@ -20,7 +21,7 @@ export async function useResource(playerId: number, resourceType: ResourceType, 
   if (resource.quantity < 0) {
     throw new Error('Not enough resources');
   }
-
+  revalidatePath('/board');
   return resource;
 }
 
@@ -43,7 +44,7 @@ export async function addResource(playerId: number, resourceType: ResourceType, 
       quantity: quantity,
     },
   });
-
+  revalidatePath('/board');
   return resource;
 }
 
