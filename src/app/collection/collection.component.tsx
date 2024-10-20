@@ -2,14 +2,15 @@
 import React, { useState } from 'react';
 import CollectionItem from '@/app/collection/components/collection-item';
 import DeckCreatorComponent from '@/app/collection/components/deck-creator.component';
-import { Card, Deck_Cards, Player_Decks } from '@prisma/client';
+import { Card, Player } from '@prisma/client';
 import { Select, SelectItem } from '@nextui-org/react';
 import { rarityOptions } from '@/app/models';
+import { DeckCardWithCard, PlayerDeckWithCards } from '@/app/collection/collection.fetcher';
 
 type CollectionComponentProps = {
   ownedCards: Card[];
-  playerDecks: Player_Decks[];
-  player: any;
+  playerDecks: PlayerDeckWithCards[];
+  player: Player;
 };
 
 export default function CollectionComponent({ ownedCards, playerDecks, player }: CollectionComponentProps) {
@@ -40,10 +41,10 @@ export default function CollectionComponent({ ownedCards, playerDecks, player }:
         </div>
         <div className="flex flex-row gap-4 mt-10 p-2">
           {playerDecks
-            ?.filter((i: any) => i.id === player.editedDeckId)
-            .map((deck: Player_Decks) => (
+            ?.filter((i: PlayerDeckWithCards) => i.id === player.editedDeckId)
+            .map((deck: PlayerDeckWithCards) => (
               <React.Fragment key={deck.id}>
-                {deck.deckCards?.map((dCard: Deck_Cards) => (
+                {deck.cards?.map((dCard: DeckCardWithCard) => (
                   <CollectionItem inDeck={true} player={player} card={dCard.card} key={dCard.id} />
                 ))}
               </React.Fragment>

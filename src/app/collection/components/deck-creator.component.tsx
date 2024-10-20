@@ -4,7 +4,6 @@ import { Player, Player_Decks } from '@prisma/client';
 import { Input } from '@nextui-org/input';
 import { Button } from '@nextui-org/react';
 import { Card, CardHeader, CardBody, CardFooter, Divider, Image } from '@nextui-org/react';
-import { Checkbox } from '@nextui-org/checkbox';
 import { Chip } from '@nextui-org/chip';
 
 export default function DeckCreatorComponent({ player, decks }: { player: Player; decks: Player_Decks[] }) {
@@ -56,7 +55,7 @@ export default function DeckCreatorComponent({ player, decks }: { player: Player
               <CardHeader className="flex gap-3">
                 <Image alt="nextui logo" height={40} radius="sm" src="/deck2.webp" width={40} />
                 <div className="flex flex-col">
-                  <p className="text-md">{deck.deckName}</p>
+                  <p className="text-md">{deck.name}</p>
                 </div>
                 {player.editedDeckId === deck.id && (
                   <Chip className={'ml-auto'} color="success">

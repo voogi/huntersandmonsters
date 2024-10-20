@@ -1,14 +1,30 @@
-import { Card } from '@prisma/client';
+import { Card, Player, Prisma } from '@prisma/client';
 import { prisma } from '../../../prisma';
+
+export type PlayerDeckWithCards = Prisma.Player_DecksGetPayload<{
+  include: {
+    cards: {
+      include: {
+        card: true;
+      };
+    };
+  };
+}>;
+
+export type DeckCardWithCard = Prisma.Deck_CardGetPayload<{
+  include: {
+    card: true;
+  };
+}>;
 
 export async function fetchCollection() {
   try {
     const ownedCards: Card[] = await prisma.card.findMany();
-    const player: any = await prisma.player.findFirst();
-    const playerDecks: any = await prisma.player_Decks.findMany({
-      where: { playerId: player.id },
+    const player: Player | null = await prisma.player.findFirst();
+    const playerDecks: PlayerDeckWithCards[] = await prisma.player_Decks.findMany({
+      where: { playerId: player?.id },
       include: {
-        deckCards: {
+        cards: {
           include: {
             card: true,
           },

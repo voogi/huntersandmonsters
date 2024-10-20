@@ -25,7 +25,7 @@ enum ResourceType {
 
 // Card modell definiálása
 model Card {
-  id          Int          @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   name        String
   description String
   image       String
@@ -35,7 +35,7 @@ model Card {
   attack      Int
   rarity      Rarity
   tier        Int
-  decks       Deck_Cards[]
+  decks       Deck_Card[]
 }
 
 model Player {
@@ -48,7 +48,7 @@ model Player {
   battle       Battle?        @relation(fields: [battleId], references: [id])
   battleId     Int?
   editedDeckId Int
-  resources Resource[]
+  resources    Resource[]
 }
 
 model Resource {
@@ -56,9 +56,10 @@ model Resource {
   type      ResourceType // A resource típusa enum-ként
   playerId  Int
   player    Player       @relation(fields: [playerId], references: [id])
-  quantity  Int          // Mennyi erőforrás áll rendelkezésre
+  quantity  Int // Mennyi erőforrás áll rendelkezésre
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+
   @@unique([playerId, type])
 }
 
@@ -71,14 +72,14 @@ model Player_Cards {
 }
 
 model Player_Decks {
-  id        Int          @id @default(autoincrement())
-  player    Player       @relation(fields: [playerId], references: [id])
-  playerId  Int
-  deckName  String
-  deckCards Deck_Cards[]
+  id       Int         @id @default(autoincrement())
+  player   Player      @relation(fields: [playerId], references: [id])
+  playerId Int
+  name     String
+  cards    Deck_Card[]
 }
 
-model Deck_Cards {
+model Deck_Card {
   id       Int          @id @default(autoincrement())
   deck     Player_Decks @relation(fields: [deckId], references: [id], onDelete: Cascade)
   deckId   Int

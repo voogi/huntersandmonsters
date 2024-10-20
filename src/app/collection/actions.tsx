@@ -2,12 +2,11 @@
 import { prisma } from '../../../prisma';
 import { revalidatePath } from 'next/cache';
 
-export async function addDeck(playerId: number, deckName: string) {
-  console.log(playerId);
+export async function addDeck(playerId: number, name: string) {
   const response: any = await prisma.player_Decks.create({
     data: {
-      deckName: deckName,
-      playerId: playerId,
+      name,
+      playerId,
     },
   });
   revalidatePath('/collection');
@@ -35,7 +34,7 @@ export async function updateEditedDeckId(playerId: number, newDeckId: number) {
 
 export async function addCardToDeck(deckId: number, cardId: number, quantity: number) {
   try {
-    const deckCard = await prisma.deck_Cards.create({
+    const deckCard = await prisma.deck_Card.create({
       data: {
         deckId: deckId,
         cardId: cardId,
@@ -51,7 +50,7 @@ export async function addCardToDeck(deckId: number, cardId: number, quantity: nu
 
 export async function removeCardFromDeck(deckId: number, cardId: number) {
   try {
-    const deletedCard = await prisma.deck_Cards.deleteMany({
+    const deletedCard = await prisma.deck_Card.deleteMany({
       where: {
         deckId: deckId,
         cardId: cardId,
