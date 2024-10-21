@@ -8,6 +8,8 @@ import { DndContext, DragEndEvent, DragMoveEvent, DragOverEvent, DragOverlay, Dr
 import { arrayMove, SortableContext } from '@dnd-kit/sortable';
 import { DraggableOverlayCardItem } from '@/app/components/draggable-card-item';
 import { saveState } from '@/app/board/actions';
+import { Button } from '@nextui-org/react';
+import { startBattle } from '@/app/controller/battle-controller';
 
 export default function BoardComponent({ data }: any) {
   const [battlefieldItems, setBattlefieldItems] = useState<any>(data?.boardCards);
@@ -15,10 +17,17 @@ export default function BoardComponent({ data }: any) {
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
   const [act, setAct] = useState<any>(null);
   const [isPending, startTransition] = useTransition();
+  const [isPendingRestart, startRestartTransition] = useTransition();
 
   const save = () => {
     startTransition(async () => {
       const response: any = await saveState(1, playerCards, battlefieldItems);
+    });
+  };
+
+  const restart = () => {
+    startRestartTransition(async () => {
+      const response: any = await startBattle();
     });
   };
 
@@ -103,6 +112,11 @@ export default function BoardComponent({ data }: any) {
           </SortableContext>
           <DragOverlay>{act ? <DraggableOverlayCardItem id={act.id} dragDelta={dragDelta} /> : null}</DragOverlay>
         </DndContext>
+        <div className={'flex'}>
+          <Button isLoading={isPendingRestart} size={'md'} onPress={restart} color="primary">
+            Restart
+          </Button>
+        </div>
       </div>
       <HistoryArea />
     </div>

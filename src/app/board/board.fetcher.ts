@@ -1,5 +1,6 @@
 import { Battle, Prisma } from '@prisma/client';
 import { prisma } from '../../../prisma';
+import { generateRandomCode } from '@/utils';
 
 export type PlayerWithResources = Prisma.PlayerGetPayload<{
   include: {
@@ -29,7 +30,10 @@ export async function fetchBoardData() {
     };
   } catch (error) {
     console.error('Hiba történt az adatok lekérése közben:', error);
-    throw new Error('Failed to fetch cards from the database.');
+    return {
+      boardCards: [...Array(2).keys()].map(() => generateRandomCode()),
+      playerCards: [...Array(2).keys()].map(() => generateRandomCode()),
+    };
   } finally {
     await prisma.$disconnect();
   }
