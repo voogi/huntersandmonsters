@@ -1,7 +1,5 @@
 import { Battle, Prisma } from '@prisma/client';
 import { prisma } from '../../../prisma';
-import { generateRandomCode } from '@/utils';
-import { BoardProps } from '@/app/board/board.component';
 
 export type PlayerWithResources = Prisma.PlayerGetPayload<{
   include: {
@@ -25,7 +23,6 @@ export async function fetchBoardData(){
 
     const state = typeof battle?.state === 'object' && battle.state !== null ? battle.state : {};
     const privateP1Data = typeof battle?.privateP1Data === 'object' && battle.privateP1Data !== null ? battle.privateP1Data : {};
-    console.log(player)
     return {
       ...state,
       player,
