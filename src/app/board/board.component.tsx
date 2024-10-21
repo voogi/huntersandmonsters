@@ -13,7 +13,7 @@ import { startBattle } from '@/app/controller/battle-controller';
 import { Card } from '@prisma/client';
 import { PlayerWithResources } from '@/app/board/board.fetcher';
 
-type BoardProps = {
+export type BoardProps = {
   boardCards: Card[];
   privateP1Data: {
     cards: Card[];

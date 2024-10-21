@@ -1,10 +1,10 @@
 import React from 'react';
-import BoardComponent from '@/app/board/board.component';
+import BoardComponent, { BoardProps } from '@/app/board/board.component';
 import { fetchBoardData } from '@/app/board/board.fetcher';
 
 export default async function Page() {
-  const data = await fetchBoardData();
+  const data: BoardProps  = await fetchBoardData();
   return (
-    <BoardComponent data={data}/>
+    <BoardComponent {...data} />
   );
 }
