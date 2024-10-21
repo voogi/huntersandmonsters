@@ -23,9 +23,11 @@ export async function fetchBoardData() {
     });
 
     const state = typeof battle?.state === 'object' && battle.state !== null ? battle.state : {};
+    const privateP1Data = typeof battle?.privateP1Data === 'object' && battle.privateP1Data !== null ? battle.privateP1Data : {};
     return {
       ...state,
       player,
+      privateP1Data
     };
   } catch (error) {
     console.error('Hiba történt az adatok lekérése közben:', error);
