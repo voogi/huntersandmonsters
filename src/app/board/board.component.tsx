@@ -53,11 +53,10 @@ export default function BoardComponent({ data }: any) {
       (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)
     ) {
       if (active?.data?.current?.sortable?.containerId === 'playerCardsSortable') {
-        const idx = playerCards.findIndex((i: Card) => i.id === Number(active.id)); // Átalakítjuk az active.id-t numberré
+        const idx = playerCards.findIndex((i: Card) => i.id === Number(active.id));
         if (idx !== -1) {
           const newPlayerCards = [...playerCards];
           const removed = newPlayerCards.splice(idx, 1);
-
           if (JSON.stringify(battlefieldItems.concat(removed)) !== JSON.stringify(battlefieldItems)) {
             setBattlefieldItems([...battlefieldItems, ...removed]);
             setPlayerCards(newPlayerCards);
@@ -71,11 +70,10 @@ export default function BoardComponent({ data }: any) {
       (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)
     ) {
       if (active?.data?.current?.sortable?.containerId === 'battlefieldCardsSortable') {
-        const idx = battlefieldItems.findIndex((i: Card) => i.id === Number(active.id)); // Átalakítjuk az active.id-t numberré
+        const idx = battlefieldItems.findIndex((i: Card) => i.id === Number(active.id));
         if (idx !== -1) {
           const newBattlefieldItems = [...battlefieldItems];
           const removed = newBattlefieldItems.splice(idx, 1);
-
           if (JSON.stringify(playerCards.concat(removed)) !== JSON.stringify(playerCards)) {
             setPlayerCards([...playerCards, ...removed]);
             setBattlefieldItems(newBattlefieldItems);
@@ -90,8 +88,8 @@ export default function BoardComponent({ data }: any) {
 
     if (over) {
       if (active.data.current?.sortable?.containerId === 'battlefieldCardsSortable') {
-        const activeCard = battlefieldItems.find((item: Card) => item.id === Number(active.id)); // Megkeressük az aktív kártyát
-        const overCard = battlefieldItems.find((item: Card) => item.id === Number(over.id)); // Megkeressük az "over" kártyát
+        const activeCard = battlefieldItems.find((item: Card) => item.id === Number(active.id));
+        const overCard = battlefieldItems.find((item: Card) => item.id === Number(over.id));
 
         if (activeCard && overCard) {
           const newItems = arrayMove(
@@ -99,18 +97,16 @@ export default function BoardComponent({ data }: any) {
             battlefieldItems.indexOf(activeCard),
             battlefieldItems.indexOf(overCard),
           );
-
           setBattlefieldItems(newItems);
         }
       }
 
       if (active.data.current?.sortable?.containerId === 'playerCardsSortable') {
-        const activeCard = playerCards.find((item: Card) => item.id === Number(active.id)); // Megkeressük az aktív kártyát
-        const overCard = playerCards.find((item: Card) => item.id === Number(over.id)); // Megkeressük az "over" kártyát
+        const activeCard = playerCards.find((item: Card) => item.id === Number(active.id));
+        const overCard = playerCards.find((item: Card) => item.id === Number(over.id));
 
         if (activeCard && overCard) {
           const newItems = arrayMove(playerCards, playerCards.indexOf(activeCard), playerCards.indexOf(overCard));
-
           setPlayerCards(newItems);
         }
       }

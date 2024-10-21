@@ -19,8 +19,8 @@ export async function startBattle() {
       },
     },
     where: {
-      id: 1
-    }
+      id: 1,
+    },
   });
   revalidatePath('/board');
   return response;
