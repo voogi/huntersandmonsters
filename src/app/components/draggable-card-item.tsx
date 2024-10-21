@@ -4,17 +4,18 @@ import { motion, useMotionValue, useSpring, useTransform, useVelocity } from 'fr
 import { CSS } from '@dnd-kit/utilities';
 import { useEffect } from 'react';
 import { useDndContext } from '@dnd-kit/core';
+import { CardComponent } from '@/app/components/card/card.component';
+import { Card } from '@prisma/client';
 
 const ANIMATION_DURATION_MS = 750;
 
-export const DraggableCardItem = ({ id }: any) => {
+export const DraggableCardItem = ({ card }: { card: Card }) => {
   const sortable = useSortable({
-    id,
+    id: card?.id,
     transition: { duration: ANIMATION_DURATION_MS, easing: 'ease' },
   });
 
-  const { setNodeRef, attributes, transform, transition, listeners, isDragging,  } = sortable;
-
+  const { setNodeRef, attributes, transform, transition, listeners, isDragging } = sortable;
 
   return (
     <div ref={setNodeRef}>
@@ -31,15 +32,15 @@ export const DraggableCardItem = ({ id }: any) => {
         {...attributes}
         {...listeners}
       >
-
         <motion.div
           style={{
             boxShadow: '0px 2px 4px rgba(0,0,0,0.6)',
             transformStyle: 'preserve-3d',
             willChange: 'transform',
           }}
-          className={classNames('h-48 bg-white w-36 rounded-md bg-[url("/wolf.webp")] bg-cover bg-center')}
+          className={classNames('h-48 bg-white w-36 rounded-mdbg-cover bg-center')}
         >
+          {card && <CardComponent card={card} />}
         </motion.div>
       </motion.div>
     </div>
@@ -47,10 +48,8 @@ export const DraggableCardItem = ({ id }: any) => {
 };
 
 export const DraggableOverlayCardItem = ({ id, dragDelta }: any) => {
-
   const context = useDndContext();
   const isActive = context.active?.id === id;
-
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -66,11 +65,10 @@ export const DraggableOverlayCardItem = ({ id, dragDelta }: any) => {
     clamp: true,
   });
 
-
   useEffect(() => {
     x.set(dragDelta?.x || 0);
     y.set(dragDelta?.y || 0);
-  }, [dragDelta])
+  }, [dragDelta]);
 
   return (
     <div>
@@ -87,8 +85,7 @@ export const DraggableOverlayCardItem = ({ id, dragDelta }: any) => {
             scale: isActive ? 1.5 : 1,
           }}
           className={classNames('h-48 bg-white w-36 rounded-md bg-[url("/wolf.webp")] bg-cover bg-center')}
-        >
-        </motion.div>
+        ></motion.div>
       </motion.div>
     </div>
   );

@@ -44,7 +44,7 @@ export default function PlayerArea({ cards, player }: { cards: Card[]; player: P
           </Button>
         </div>
         <div ref={setNodeRef} className={'flex flex-row min-h-72 w-full justify-center items-center'}>
-          {cards?.map((card: Card) => <DraggableCardItem key={card.id} id={card.id} />)}
+          {cards?.map((card: Card) => <DraggableCardItem key={card.id} card={card} />)}
         </div>
       </div>
     </div>
