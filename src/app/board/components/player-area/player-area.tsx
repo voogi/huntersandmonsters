@@ -6,9 +6,9 @@ import PlayerResources from '@/app/board/components/player-area/components/playe
 import { PlayerWithResources } from '@/app/board/board.fetcher';
 import { Button } from '@nextui-org/react';
 import { addResource, removeResource } from '@/app/actions/resource-management';
-import { ResourceType } from '@prisma/client';
+import { Card, ResourceType } from '@prisma/client';
 
-export default function PlayerArea({ cards, player }: { cards: any; player: PlayerWithResources }) {
+export default function PlayerArea({ cards, player }: { cards: Card[]; player: PlayerWithResources }) {
   const { setNodeRef } = useDroppable({
     id: 'playerArea',
   });
@@ -44,7 +44,7 @@ export default function PlayerArea({ cards, player }: { cards: any; player: Play
           </Button>
         </div>
         <div ref={setNodeRef} className={'flex flex-row min-h-72 w-full justify-center items-center'}>
-          {cards?.map((id: any) => <DraggableCardItem key={id} id={id} />)}
+          {cards?.map((card: Card) => <DraggableCardItem key={card.id} id={card.id} />)}
         </div>
       </div>
     </div>

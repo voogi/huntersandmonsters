@@ -2,8 +2,9 @@
 import React from 'react';
 import { DraggableCardItem } from '@/app/components/draggable-card-item';
 import { useDroppable } from '@dnd-kit/core';
+import { Card } from '@prisma/client';
 
-export default function BattleArea({ cards }: { cards: any }) {
+export default function BattleArea({ cards }: { cards: Card[] }) {
   const { setNodeRef } = useDroppable({
     id: 'battleArea',
   });
@@ -15,7 +16,7 @@ export default function BattleArea({ cards }: { cards: any }) {
     >
       <div ref={setNodeRef}
            className={'flex flex-row gap-4 min-h-72 w-full justify-center items-center'}>
-        {cards?.map((id: any) => <DraggableCardItem key={id} id={id} />)}</div>
+        {cards?.map((card: Card) => <DraggableCardItem key={card.id} id={card.id} />)}</div>
     </div>
   );
 }
