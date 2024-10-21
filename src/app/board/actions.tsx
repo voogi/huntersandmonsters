@@ -7,14 +7,18 @@ export async function saveState(battleId: number, playerCards: Card[], boardCard
   const response: any = await prisma.battle.upsert({
     create: {
       id: battleId,
+      privateP1Data: {
+        cards: playerCards
+      },
       state: {
-        playerCards,
         boardCards,
       },
     },
     update: {
+      privateP1Data: {
+        cards: playerCards
+      },
       state: {
-        playerCards,
         boardCards,
       },
     },
