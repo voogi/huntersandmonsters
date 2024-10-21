@@ -1,15 +1,15 @@
 'use server';
 import { prisma } from '../../../prisma';
-
+import { Card, Rarity } from '@prisma/client';
 
 export async function saveCard(card: any) {
-  const newCard = await prisma.card.create({
+  const newCard: Card = await prisma.card.create({
     data: {
-      name: card.name,
-      description: card.description,
-      attack: Number(card.attack),
-      defense: Number(card.defense),
-      health: Number(card.health),
+      ...card,
+      ability: {},
+      rarity: Rarity.EPIC,
+      tier: 1,
     },
   });
+  console.log(newCard);
 }

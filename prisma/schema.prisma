@@ -31,8 +31,8 @@ model Card {
   image       String
   ability     Json
   health      Int
-  defense     Int
   attack      Int
+  cost        Int         @default(0)
   rarity      Rarity
   tier        Int
   decks       Deck_Card[]

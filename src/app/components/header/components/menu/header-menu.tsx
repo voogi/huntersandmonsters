@@ -22,6 +22,9 @@ export default function HeaderMenu() {
       <Link href={'/test'} className={`${isActive('/test')}`}>
         TEST
       </Link>
+      <Link href={'/create'} className={`${isActive('/create')}`}>
+        CARD CREATE
+      </Link>
     </div>
   );
 }
