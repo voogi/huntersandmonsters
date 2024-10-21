@@ -20,9 +20,9 @@ export default function BoardComponent({ data }: any) {
   const [isPending, startTransition] = useTransition();
   const [isPendingRestart, startRestartTransition] = useTransition();
 
-  const save = () => {
+  const save = (pCards: Card[], bCards: Card[]) => {
     startTransition(async () => {
-      const response: any = await saveState(1, playerCards, battlefieldItems);
+      const response: any = await saveState(1, pCards, bCards);
     });
   };
 
@@ -100,6 +100,7 @@ export default function BoardComponent({ data }: any) {
             battlefieldItems.indexOf(overCard),
           );
           setBattlefieldItems(newItems);
+          save(playerCards, newItems);
         }
       }
 
@@ -109,12 +110,12 @@ export default function BoardComponent({ data }: any) {
 
         if (activeCard && overCard) {
           const newItems = arrayMove(playerCards, playerCards.indexOf(activeCard), playerCards.indexOf(overCard));
-          setPlayerCards(newItems);
+          setPlayerCards(() => newItems);
+          save(newItems, battlefieldItems);
         }
       }
     }
     setAct(null);
-    save();
   }
 
   return (
