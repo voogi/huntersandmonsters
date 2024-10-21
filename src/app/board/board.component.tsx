@@ -29,6 +29,8 @@ export default function BoardComponent({ data }: any) {
   const restart = () => {
     startRestartTransition(async () => {
       const response: any = await startBattle();
+      setBattlefieldItems(response.state.boardCards);
+      setPlayerCards(response.state.playerCards);
     });
   };
 

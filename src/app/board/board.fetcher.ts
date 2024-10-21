@@ -23,7 +23,6 @@ export async function fetchBoardData() {
     });
 
     const state = typeof battle?.state === 'object' && battle.state !== null ? battle.state : {};
-
     return {
       ...state,
       player,
