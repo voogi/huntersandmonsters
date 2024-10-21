@@ -21,7 +21,7 @@ export default function PlayerArea({ cards, player }: { cards: Card[]; player: P
     >
       <div className={'flex- flex-col w-full'}>
         <div className={'flex justify-end'}>
-          <PlayerResources resources={player.resources} />
+          <PlayerResources resources={player?.resources} />
         </div>
         <div className={'flex justify-end mt-2 gap-2'}>
           <Button

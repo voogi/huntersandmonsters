@@ -5,7 +5,7 @@ import { Resource } from '@prisma/client';
 const PlayerResources = ({ resources }: { resources: Resource[] }) => {
   return (
     <div>
-      {resources.map((resource) => {
+      {resources?.map((resource) => {
         if (resource.type === 'SILVER_BULLET') {
           return (
             <div key={resource.id} className="flex flex-row gap-2">

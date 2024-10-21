@@ -11,10 +11,19 @@ import { saveState } from '@/app/board/actions';
 import { Button } from '@nextui-org/react';
 import { startBattle } from '@/app/controller/battle-controller';
 import { Card } from '@prisma/client';
+import { PlayerWithResources } from '@/app/board/board.fetcher';
 
-export default function BoardComponent({ data }: any) {
-  const [battlefieldItems, setBattlefieldItems] = useState<Card[]>(data?.boardCards);
-  const [playerCards, setPlayerCards] = useState<Card[]>(data.privateP1Data?.cards || []);
+type BoardProps = {
+  boardCards: Card[];
+  privateP1Data: {
+    cards: Card[];
+  };
+  player: PlayerWithResources;
+}
+
+export default function BoardComponent({ boardCards, privateP1Data, player }: BoardProps) {
+  const [battlefieldItems, setBattlefieldItems] = useState<Card[]>(boardCards || []);
+  const [playerCards, setPlayerCards] = useState<Card[]>(privateP1Data?.cards || []);
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
   const [act, setAct] = useState<any>(null);
   const [isPending, startTransition] = useTransition();
@@ -132,7 +141,7 @@ export default function BoardComponent({ data }: any) {
             <BattleArea cards={battlefieldItems} />
           </SortableContext>
           <SortableContext id="playerCardsSortable" items={playerCards?.map((c: Card) => c.id)}>
-            <PlayerArea cards={playerCards} player={data.player} />
+            <PlayerArea cards={playerCards} player={player} />
           </SortableContext>
           <DragOverlay>{act ? <DraggableOverlayCardItem id={act.id} dragDelta={dragDelta} /> : null}</DragOverlay>
         </DndContext>
