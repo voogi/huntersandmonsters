@@ -8,9 +8,6 @@ export default function BattleArea({ cards }: { cards: Card[] }) {
   const { setNodeRef } = useDroppable({
     id: 'battleArea',
   });
-  if (cards.length === 0) {
-    return null;
-  }
   return (
     <div
       className={

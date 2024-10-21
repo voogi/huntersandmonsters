@@ -34,11 +34,10 @@ export const DraggableCardItem = ({ card }: { card: Card }) => {
       >
         <motion.div
           style={{
-            boxShadow: '0px 2px 4px rgba(0,0,0,0.6)',
             transformStyle: 'preserve-3d',
             willChange: 'transform',
           }}
-          className={classNames('h-48 bg-white w-36 rounded-mdbg-cover bg-center')}
+          className={classNames('h-48 w-36 rounded-md bg-cover bg-center')}
         >
           {card && <CardComponent card={card} />}
         </motion.div>

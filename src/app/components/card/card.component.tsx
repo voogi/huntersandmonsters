@@ -6,9 +6,9 @@ export function CardComponent({ card }: { card: any }) {
   return (
     <motion.div
       className={classNames(
-        'cursor-pointer h-56 w-44 rounded-md bg-cover bg-center relative justify-center flex items-end pb-4',
+        'cursor-pointer h-full w-full max-h-56 max-w-44 rounded-md bg-cover bg-center relative justify-center flex items-end pb-4',
       )}
-      style={{ backgroundImage: `url(${card.image})` }}
+      style={{ backgroundImage: `url(${card.image})`, boxShadow: '0px 2px 4px rgba(0,0,0,0.6)' }}
       whileHover={{ rotate: [0, -1, 1, -1, 0], transition: { duration: 0.6, repeat: Infinity, repeatType: 'loop' } }}
     >
       <div
