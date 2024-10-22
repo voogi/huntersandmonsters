@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useTransition } from 'react';
+import React, { useEffect, useReducer, useState, useTransition } from 'react';
 import PlayerArea from '@/app/board/components/player-area/player-area';
 import OpponentArea from '@/app/board/components/opponent-area/opponent-area';
 import BattleArea from '@/app/board/components/battle-area/battle-area';
@@ -15,21 +15,33 @@ import { PlayerWithResources } from '@/app/board/board.fetcher';
 
 export type BoardProps = {
   boardCards: Card[];
-  privateP1Data: {
-    cards: Card[];
-  };
+  pCards: Card[];
+  pDeck: Card[];
   player: PlayerWithResources;
-}
+};
 
-export default function BoardComponent({ boardCards, privateP1Data, player }: BoardProps) {
-  const [battlefieldItems, setBattlefieldItems] = useState<Card[]>(boardCards || []);
-  const [playerCards, setPlayerCards] = useState<Card[]>(privateP1Data?.cards || []);
+const reducer = (state: Card[], action: { type: string; payload: Card[] }) => {
+  switch (action.type) {
+    case 'UPDATE_PCARD':
+      return action.payload;
+    default:
+      return state;
+  }
+};
+
+export default function BoardComponent({ boardCards, pCards: initialPCards, pDeck, player }: BoardProps) {
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
+  const [pCards, dispatchPCards] = useReducer(reducer, initialPCards);
   const [act, setAct] = useState<any>(null);
   const [isPending, startTransition] = useTransition();
   const [isPendingRestart, startRestartTransition] = useTransition();
 
+  useEffect(() => {
+    dispatchPCards({ type: 'UPDATE_PCARD', payload: initialPCards });
+  }, [initialPCards]);
+
   const save = (pCards: Card[], bCards: Card[]) => {
+    dispatchPCards({ type: 'UPDATE_PCARD', payload: pCards });
     startTransition(async () => {
       const response: any = await saveState(1, pCards, bCards);
     });
@@ -38,8 +50,6 @@ export default function BoardComponent({ boardCards, privateP1Data, player }: Bo
   const restart = () => {
     startRestartTransition(async () => {
       const response: any = await startBattle();
-      setBattlefieldItems(response.state.boardCards);
-      setPlayerCards(response.privateP1Data?.cards);
     });
   };
 
@@ -64,14 +74,10 @@ export default function BoardComponent({ boardCards, privateP1Data, player }: Bo
       (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)
     ) {
       if (active?.data?.current?.sortable?.containerId === 'playerCardsSortable') {
-        const idx = playerCards.findIndex((i: Card) => i.id === Number(active.id));
+        const idx = pCards.findIndex((i: Card) => i.id === Number(active.id));
         if (idx !== -1) {
-          const newPlayerCards = [...playerCards];
+          const newPlayerCards = [...pCards];
           const removed = newPlayerCards.splice(idx, 1);
-          if (JSON.stringify(battlefieldItems.concat(removed)) !== JSON.stringify(battlefieldItems)) {
-            setBattlefieldItems([...battlefieldItems, ...removed]);
-            setPlayerCards(newPlayerCards);
-          }
         }
       }
     }
@@ -81,14 +87,10 @@ export default function BoardComponent({ boardCards, privateP1Data, player }: Bo
       (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)
     ) {
       if (active?.data?.current?.sortable?.containerId === 'battlefieldCardsSortable') {
-        const idx = battlefieldItems.findIndex((i: Card) => i.id === Number(active.id));
+        const idx = boardCards.findIndex((i: Card) => i.id === Number(active.id));
         if (idx !== -1) {
-          const newBattlefieldItems = [...battlefieldItems];
+          const newBattlefieldItems = [...boardCards];
           const removed = newBattlefieldItems.splice(idx, 1);
-          if (JSON.stringify(playerCards.concat(removed)) !== JSON.stringify(playerCards)) {
-            setPlayerCards([...playerCards, ...removed]);
-            setBattlefieldItems(newBattlefieldItems);
-          }
         }
       }
     }
@@ -99,28 +101,22 @@ export default function BoardComponent({ boardCards, privateP1Data, player }: Bo
 
     if (over) {
       if (active.data.current?.sortable?.containerId === 'battlefieldCardsSortable') {
-        const activeCard = battlefieldItems.find((item: Card) => item.id === Number(active.id));
-        const overCard = battlefieldItems.find((item: Card) => item.id === Number(over.id));
+        const activeCard = boardCards.find((item: Card) => item.id === Number(active.id));
+        const overCard = boardCards.find((item: Card) => item.id === Number(over.id));
 
         if (activeCard && overCard) {
-          const newItems = arrayMove(
-            battlefieldItems,
-            battlefieldItems.indexOf(activeCard),
-            battlefieldItems.indexOf(overCard),
-          );
-          setBattlefieldItems(newItems);
-          save(playerCards, newItems);
+          const newItems = arrayMove(boardCards, boardCards.indexOf(activeCard), boardCards.indexOf(overCard));
+          save(pCards, newItems);
         }
       }
 
       if (active.data.current?.sortable?.containerId === 'playerCardsSortable') {
-        const activeCard = playerCards.find((item: Card) => item.id === Number(active.id));
-        const overCard = playerCards.find((item: Card) => item.id === Number(over.id));
+        const activeCard = pCards.find((item: Card) => item.id === Number(active.id));
+        const overCard = pCards.find((item: Card) => item.id === Number(over.id));
 
         if (activeCard && overCard) {
-          const newItems = arrayMove(playerCards, playerCards.indexOf(activeCard), playerCards.indexOf(overCard));
-          setPlayerCards(() => newItems);
-          save(newItems, battlefieldItems);
+          const newItems = arrayMove(pCards, pCards.indexOf(activeCard), pCards.indexOf(overCard));
+          save(newItems, boardCards);
         }
       }
     }
@@ -137,11 +133,11 @@ export default function BoardComponent({ boardCards, privateP1Data, player }: Bo
           onDragEnd={handleDragEnd}
         >
           <OpponentArea cards={[]} />
-          <SortableContext id="battlefieldCardsSortable" items={battlefieldItems.map((c: Card) => c.id)}>
-            <BattleArea cards={battlefieldItems} />
+          <SortableContext id="battlefieldCardsSortable" items={boardCards.map((c: Card) => c.id)}>
+            <BattleArea cards={boardCards} />
           </SortableContext>
-          <SortableContext id="playerCardsSortable" items={playerCards?.map((c: Card) => c.id)}>
-            <PlayerArea cards={playerCards} player={player} />
+          <SortableContext id="playerCardsSortable" items={pCards?.map((c: Card) => c.id)}>
+            <PlayerArea cards={pCards} player={player} deck={pDeck} />
           </SortableContext>
           <DragOverlay>{act ? <DraggableOverlayCardItem id={act.id} dragDelta={dragDelta} /> : null}</DragOverlay>
         </DndContext>

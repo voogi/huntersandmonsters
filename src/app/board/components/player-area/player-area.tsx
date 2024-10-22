@@ -1,17 +1,27 @@
 'use client';
-import React from 'react';
+import React, { useTransition } from 'react';
 import { DraggableCardItem } from '@/app/components/draggable-card-item';
 import { useDroppable } from '@dnd-kit/core';
 import PlayerResources from '@/app/board/components/player-area/components/player-resources';
 import { PlayerWithResources } from '@/app/board/board.fetcher';
+import { Card } from '@prisma/client';
 import { Button } from '@nextui-org/react';
-import { addResource, removeResource } from '@/app/actions/resource-management';
-import { Card, ResourceType } from '@prisma/client';
+import { drawCard } from '@/app/controller/battle-controller';
 
-export default function PlayerArea({ cards, player }: { cards: Card[]; player: PlayerWithResources }) {
+export default function PlayerArea({
+  cards,
+  player,
+  deck,
+}: {
+  cards: Card[];
+  player: PlayerWithResources;
+  deck: Card[];
+}) {
   const { setNodeRef } = useDroppable({
     id: 'playerArea',
   });
+
+  const [isPending, startTransition] = useTransition();
 
   return (
     <div
@@ -23,24 +33,18 @@ export default function PlayerArea({ cards, player }: { cards: Card[]; player: P
         <div className={'flex justify-end'}>
           <PlayerResources resources={player?.resources} />
         </div>
-        <div className={'flex justify-end mt-2 gap-2'}>
+        <div>Player DECK - {deck?.length}</div>
+        <div>
           <Button
             size={'md'}
             color="primary"
             onPress={() => {
-              addResource(player.id, ResourceType.SILVER_BULLET, 1);
+              startTransition(async () => {
+                await drawCard(player.id);
+              });
             }}
           >
             +
-          </Button>
-          <Button
-            size={'md'}
-            onPress={() => {
-              removeResource(player.id, ResourceType.SILVER_BULLET, 1);
-            }}
-            color="primary"
-          >
-            -
           </Button>
         </div>
         <div ref={setNodeRef} className={'flex flex-row min-h-72 w-full justify-center items-center'}>

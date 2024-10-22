@@ -7,7 +7,7 @@ export type PlayerWithResources = Prisma.PlayerGetPayload<{
   };
 }>;
 
-export async function fetchBoardData(){
+export async function fetchBoardData() {
   try {
     const battle: Battle | null = await prisma.battle.findUnique({
       where: {
@@ -22,11 +22,16 @@ export async function fetchBoardData(){
     });
 
     const state = typeof battle?.state === 'object' && battle.state !== null ? battle.state : {};
-    const privateP1Data = typeof battle?.privateP1Data === 'object' && battle.privateP1Data !== null ? battle.privateP1Data : {};
+    const privateP1Data: any =
+      typeof battle?.privateP1Data === 'object' && battle.privateP1Data !== null ? battle.privateP1Data : {};
+
+    console.log(privateP1Data.cards.length);
+
     return {
       ...state,
       player,
-      privateP1Data
+      pCards: privateP1Data.cards,
+      pDeck: privateP1Data.deck,
     };
   } catch (error) {
     console.error('Hiba történt az adatok lekérése közben:', error);
