@@ -7,6 +7,9 @@ import { PlayerWithResources } from '@/app/board/board.fetcher';
 import { Card } from '@prisma/client';
 import { Button } from '@nextui-org/react';
 import { drawCard } from '@/app/controller/battle-controller';
+import { SortableContext } from '@dnd-kit/sortable';
+
+const PLAYER_AREA_ID: string = 'pCards';
 
 export default function PlayerArea({
   cards,
@@ -18,7 +21,7 @@ export default function PlayerArea({
   deck: Card[];
 }) {
   const { setNodeRef } = useDroppable({
-    id: 'playerArea',
+    id: PLAYER_AREA_ID,
   });
 
   const [isPending, startTransition] = useTransition();
@@ -47,9 +50,11 @@ export default function PlayerArea({
             +
           </Button>
         </div>
-        <div ref={setNodeRef} className={'flex flex-row min-h-72 w-full justify-center items-center'}>
-          {cards?.map((card: Card) => <DraggableCardItem key={card.id} card={card} />)}
-        </div>
+        <SortableContext items={cards} id={PLAYER_AREA_ID}>
+          <div ref={setNodeRef} className={'flex flex-row min-h-72 w-full justify-center items-center'}>
+            {cards?.map((card: Card) => <DraggableCardItem key={card.id} card={card} />)}
+          </div>
+        </SortableContext>
       </div>
     </div>
   );

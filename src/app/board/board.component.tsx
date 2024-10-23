@@ -1,17 +1,30 @@
 'use client';
-import React, { useEffect, useReducer, useState, useTransition } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 import PlayerArea from '@/app/board/components/player-area/player-area';
 import OpponentArea from '@/app/board/components/opponent-area/opponent-area';
 import BattleArea from '@/app/board/components/battle-area/battle-area';
 import HistoryArea from '@/app/board/components/history area/history-area';
-import { DndContext, DragEndEvent, DragMoveEvent, DragOverEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
-import { arrayMove, SortableContext } from '@dnd-kit/sortable';
+import { DndContext, DragMoveEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
+import { SortableContext } from '@dnd-kit/sortable';
 import { DraggableOverlayCardItem } from '@/app/components/draggable-card-item';
 import { saveState } from '@/app/board/actions';
 import { Button } from '@nextui-org/react';
 import { startBattle } from '@/app/controller/battle-controller';
 import { Card } from '@prisma/client';
 import { PlayerWithResources } from '@/app/board/board.fetcher';
+import { arrayMove as dndKitArrayMove } from '@dnd-kit/sortable';
+
+export const removeAtIndex = (array, index) => {
+  return [...array.slice(0, index), ...array.slice(index + 1)];
+};
+
+export const insertAtIndex = (array, index, item) => {
+  return [...array.slice(0, index), item, ...array.slice(index)];
+};
+
+export const arrayMove = (array, oldIndex, newIndex) => {
+  return dndKitArrayMove(array, oldIndex, newIndex);
+};
 
 export type BoardProps = {
   boardCards: Card[];
@@ -20,36 +33,32 @@ export type BoardProps = {
   player: PlayerWithResources;
 };
 
-const reducer = (state: Card[], action: { type: string; payload: Card[] }) => {
-  switch (action.type) {
-    case 'UPDATE_PCARD':
-      return action.payload;
-    default:
-      return state;
-  }
-};
-
-export default function BoardComponent({ boardCards, pCards: initialPCards, pDeck, player }: BoardProps) {
+export default function BoardComponent({ boardCards, pCards, pDeck, player }: BoardProps) {
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
-  const [pCards, dispatchPCards] = useReducer(reducer, initialPCards);
+  const [items, setItems] = useState({
+    pCards,
+    boardCards,
+  });
   const [act, setAct] = useState<any>(null);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
   const [isPendingRestart, startRestartTransition] = useTransition();
 
   useEffect(() => {
-    dispatchPCards({ type: 'UPDATE_PCARD', payload: initialPCards });
-  }, [initialPCards]);
+    setItems({
+      pCards,
+      boardCards,
+    });
+  }, [pCards, boardCards]);
 
-  const save = (pCards: Card[], bCards: Card[]) => {
-    dispatchPCards({ type: 'UPDATE_PCARD', payload: pCards });
+  const save = () => {
     startTransition(async () => {
-      const response: any = await saveState(1, pCards, bCards);
+      await saveState(1, items.pCards, items.boardCards);
     });
   };
 
   const restart = () => {
     startRestartTransition(async () => {
-      const response: any = await startBattle();
+      await startBattle();
     });
   };
 
@@ -66,79 +75,97 @@ export default function BoardComponent({ boardCards, pCards: initialPCards, pDec
     setAct(active);
   }
 
-  function handleDragOver(event: DragOverEvent) {
-    const { active, over } = event;
+  const handleDragCancel = () => setAct(null);
 
-    if (
-      over?.id === 'battleArea' ||
-      (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)
-    ) {
-      if (active?.data?.current?.sortable?.containerId === 'playerCardsSortable') {
-        const idx = pCards.findIndex((i: Card) => i.id === Number(active.id));
-        if (idx !== -1) {
-          const newPlayerCards = [...pCards];
-          const removed = newPlayerCards.splice(idx, 1);
-        }
-      }
+  const handleDragOver = ({ active, over }) => {
+    const overId = over?.id;
+
+    if (!overId) {
+      return;
     }
 
-    if (
-      over?.id === 'playerArea' ||
-      (over?.data.current && active?.data?.current?.sortable?.containerId !== over?.data.current?.sortable.containerId)
-    ) {
-      if (active?.data?.current?.sortable?.containerId === 'battlefieldCardsSortable') {
-        const idx = boardCards.findIndex((i: Card) => i.id === Number(active.id));
-        if (idx !== -1) {
-          const newBattlefieldItems = [...boardCards];
-          const removed = newBattlefieldItems.splice(idx, 1);
-        }
-      }
+    const activeContainer = active.data.current.sortable.containerId;
+    const overContainer = over.data.current?.sortable.containerId || over.id;
+
+    if (activeContainer !== overContainer) {
+      setItems((items) => {
+        const activeIndex = active.data.current.sortable.index;
+        const overIndex = over.id in items ? items[overContainer].length + 1 : over.data.current.sortable.index;
+
+        return moveBetweenContainers(
+          items,
+          activeContainer,
+          activeIndex,
+          overContainer,
+          overIndex,
+          items[activeContainer].find((i: any) => i.id === active.id),
+        );
+      });
     }
-  }
+  };
 
-  function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-
-    if (over) {
-      if (active.data.current?.sortable?.containerId === 'battlefieldCardsSortable') {
-        const activeCard = boardCards.find((item: Card) => item.id === Number(active.id));
-        const overCard = boardCards.find((item: Card) => item.id === Number(over.id));
-
-        if (activeCard && overCard) {
-          const newItems = arrayMove(boardCards, boardCards.indexOf(activeCard), boardCards.indexOf(overCard));
-          save(pCards, newItems);
-        }
-      }
-
-      if (active.data.current?.sortable?.containerId === 'playerCardsSortable') {
-        const activeCard = pCards.find((item: Card) => item.id === Number(active.id));
-        const overCard = pCards.find((item: Card) => item.id === Number(over.id));
-
-        if (activeCard && overCard) {
-          const newItems = arrayMove(pCards, pCards.indexOf(activeCard), pCards.indexOf(overCard));
-          save(newItems, boardCards);
-        }
-      }
+  const handleDragEnd = ({ active, over }) => {
+    if (!over) {
+      setAct(null);
+      return;
     }
+
+    if (active.id !== over.id) {
+      const activeContainer = active.data.current.sortable.containerId;
+      const overContainer = over.data.current?.sortable.containerId || over.id;
+      const activeIndex = active.data.current.sortable.index;
+      const overIndex = over.id in items ? items[overContainer].length + 1 : over.data.current.sortable.index;
+
+      setItems((items) => {
+        let newItems;
+        if (activeContainer === overContainer) {
+          newItems = {
+            ...items,
+            [overContainer]: arrayMove(items[overContainer], activeIndex, overIndex),
+          };
+        } else {
+          newItems = moveBetweenContainers(
+            items,
+            activeContainer,
+            activeIndex,
+            overContainer,
+            overIndex,
+            items[activeContainer].find((i: any) => i.id === active.id),
+          );
+        }
+
+        return newItems;
+      });
+    }
+
+    save();
     setAct(null);
-  }
+  };
+
+  const moveBetweenContainers = (items, activeContainer, activeIndex, overContainer, overIndex, item) => {
+    return {
+      ...items,
+      [activeContainer]: removeAtIndex(items[activeContainer], activeIndex),
+      [overContainer]: insertAtIndex(items[overContainer], overIndex, item),
+    };
+  };
 
   return (
     <div className={'grid grid-cols-8 gap-2 grid-rows-1 h-full w-full'}>
       <div className={'w-full col-span-7 gap-2 flex flex-col justify-evenly h-full'}>
         <DndContext
           onDragOver={handleDragOver}
+          onDragCancel={handleDragCancel}
           onDragStart={handleDragStart}
           onDragMove={handleDragMove}
           onDragEnd={handleDragEnd}
         >
           <OpponentArea cards={[]} />
-          <SortableContext id="battlefieldCardsSortable" items={boardCards.map((c: Card) => c.id)}>
-            <BattleArea cards={boardCards} />
-          </SortableContext>
-          <SortableContext id="playerCardsSortable" items={pCards?.map((c: Card) => c.id)}>
-            <PlayerArea cards={pCards} player={player} deck={pDeck} />
-          </SortableContext>
+
+          <BattleArea cards={items.boardCards} />
+
+          <PlayerArea cards={items.pCards} player={player} deck={pDeck} />
+
           <DragOverlay>{act ? <DraggableOverlayCardItem id={act.id} dragDelta={dragDelta} /> : null}</DragOverlay>
         </DndContext>
         <div className={'flex'}>
