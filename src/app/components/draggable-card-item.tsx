@@ -46,7 +46,7 @@ export const DraggableCardItem = ({ card }: { card: Card }) => {
   );
 };
 
-export const DraggableOverlayCardItem = ({ id, dragDelta }: any) => {
+export const DraggableOverlayCardItem = ({ id, dragDelta, image }: any) => {
   const context = useDndContext();
   const isActive = context.active?.id === id;
 
@@ -79,6 +79,7 @@ export const DraggableOverlayCardItem = ({ id, dragDelta }: any) => {
             willChange: 'transform',
             rotateX,
             rotateY,
+            backgroundImage: `url(${image})`
           }}
           animate={{
             scale: isActive ? 1.5 : 1,

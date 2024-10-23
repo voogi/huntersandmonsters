@@ -1,5 +1,6 @@
 import { Battle, Prisma } from '@prisma/client';
 import { prisma } from '../../../prisma';
+import { getPlayerId } from '@/app/controller/user-controller';
 
 export type PlayerWithResources = Prisma.PlayerGetPayload<{
   include: {
@@ -13,9 +14,16 @@ export async function fetchBoardData() {
       where: {
         id: 1,
       },
+      include: {
+        players: true,
+      },
     });
+    const playerId = await getPlayerId();
 
-    const player: PlayerWithResources | null = await prisma.player.findFirst({
+    const player: PlayerWithResources | null = await prisma.player.findUnique({
+      where: {
+        id: playerId
+      },
       include: {
         resources: true,
       },
@@ -25,13 +33,17 @@ export async function fetchBoardData() {
     const privateP1Data: any =
       typeof battle?.privateP1Data === 'object' && battle.privateP1Data !== null ? battle.privateP1Data : {};
 
-    console.log(privateP1Data.cards.length);
+    const privateP2Data: any =
+      typeof battle?.privateP2Data === 'object' && battle.privateP2Data !== null ? battle.privateP2Data : {};
+
+    const isUserP1 = battle?.players[0].id === playerId;
 
     return {
-      ...state,
+      boardCards: isUserP1 ? state.boardCards : state.opponentBoardCards,
+      opponentBoardCards: isUserP1 ? state.opponentBoardCards : state.boardCards,
       player,
-      pCards: privateP1Data.cards,
-      pDeck: privateP1Data.deck,
+      pCards: isUserP1 ? privateP1Data.cards : privateP2Data.cards,
+      pDeck: isUserP1 ? privateP1Data.deck : privateP2Data.deck,
     };
   } catch (error) {
     console.error('Hiba történt az adatok lekérése közben:', error);

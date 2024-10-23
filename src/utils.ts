@@ -9,7 +9,7 @@ const generateUniqueId = () => {
   return Date.now() + Math.floor(Math.random() * 1000);
 };
 
-export const generateCards = (count: number): Card[] => {
+export const generateCards = (count: number, image = '/wolf.webp'): Card[] => {
   const cards: Card[] = [];
 
   for (let i = 0; i < count; i++) {
@@ -17,7 +17,7 @@ export const generateCards = (count: number): Card[] => {
       id: generateUniqueId(),
       name: `Card ${i + 1}`,
       description: `This is the description for Card ${i + 1}`,
-      image: '/wolf.webp',
+      image: image,
       ability: null,
       health: Math.floor(Math.random() * 100) + 1,
       defense: Math.floor(Math.random() * 50) + 1,
@@ -29,3 +29,11 @@ export const generateCards = (count: number): Card[] => {
 
   return cards;
 };
+
+export function moveInArray(array, oldIndex, newIndex) {
+  if (newIndex >= array.length) {
+    newIndex = array.length - 1;
+  }
+  array.splice(newIndex, 0, array.splice(oldIndex, 1)[0]);
+  return array;
+}

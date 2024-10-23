@@ -3,6 +3,8 @@ import { Card } from '@prisma/client';
 import { PlayerWithResources } from '@/app/board/board.fetcher';
 import { useEffect, useState } from 'react';
 import { DragEndEvent, DragMoveEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
+import { PLAYER_AREA_ID } from '@/app/board/components/player-area/player-area';
+import { BATTLE_AREA_ID } from '@/app/board/components/battle-area/battle-area';
 
 export const removeAtIndex = (array: Card[], index: number) => {
   return [...array.slice(0, index), ...array.slice(index + 1)];
@@ -32,13 +34,16 @@ export type BoardProps = {
   player: PlayerWithResources;
 };
 
-export function useBoardDnd(pCards: Card[], boardCards: Card[], save: () => void) {
+export function useBoardDnd(pCards: Card[], boardCards: Card[], moveToBattleField: (cardId: number, newIndex: number) => void, moveOnBattleField: (cardId: number, newIndex: number) => void) {
   const [items, setItems] = useState<{pCards: Card[], boardCards: Card[]}>({
     pCards,
     boardCards,
   });
   const [act, setAct] = useState<any>(null);
   const [dragDelta, setDragDelta] = useState({ x: 0, y: 0 });
+  const [activeImage, setActiveImage] = useState('');
+  const [newCardPosition, setNewCardPosition] = useState<Record<number, number> >({});
+
 
   useEffect(() => {
     setItems({
@@ -47,7 +52,10 @@ export function useBoardDnd(pCards: Card[], boardCards: Card[], save: () => void
     });
   }, [pCards, boardCards]);
 
-  const handleDragCancel = () => setAct(null);
+  const handleDragCancel = () => {
+    setAct(null);
+    setNewCardPosition({});
+  };
 
   const handleDragOver = ({ active, over } : DragOverEvent) => {
     const overId = over?.id;
@@ -63,6 +71,14 @@ export function useBoardDnd(pCards: Card[], boardCards: Card[], save: () => void
       setItems((items) => {
         const activeIndex = active.data.current?.sortable.index;
         const overIndex = over.id in items ? items[overContainer as keyof typeof items].length + 1 : over.data.current?.sortable.index;
+
+        if (activeContainer === PLAYER_AREA_ID && overContainer === BATTLE_AREA_ID) {
+          const newPos: Record<number, number> = {};
+          newPos[active.id as number] = overIndex
+          setNewCardPosition(newPos);
+        } else {
+          setNewCardPosition({});
+        }
 
         return moveBetweenContainers(
           items,
@@ -88,6 +104,11 @@ export function useBoardDnd(pCards: Card[], boardCards: Card[], save: () => void
       const activeIndex = active.data.current?.sortable.index;
       const overIndex = over.id in items ? items[overContainer as keyof typeof items].length + 1 : over.data.current?.sortable.index;
 
+      if (newCardPosition[active.id as number] !== undefined) {
+        moveToBattleField(active.id as number, newCardPosition[active.id as number]);
+        setNewCardPosition({});
+      }
+
       setItems((items) => {
         let newItems;
         if (activeContainer === overContainer) {
@@ -108,14 +129,18 @@ export function useBoardDnd(pCards: Card[], boardCards: Card[], save: () => void
 
         return newItems;
       });
+      if (activeContainer === BATTLE_AREA_ID && overContainer === BATTLE_AREA_ID && overIndex !== activeIndex) {
+        moveOnBattleField(active.id as number, overIndex);
+      }
     }
-    save();
     setAct(null);
   };
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
     setAct(active);
+    const allCards = [...items.pCards, ...items.boardCards];
+    setActiveImage(allCards.find(c => c.id === active.id)?.image || '');
   }
 
 
@@ -137,6 +162,7 @@ export function useBoardDnd(pCards: Card[], boardCards: Card[], save: () => void
     handleDragEnd,
     handleDragStart,
     dragDelta,
-    handleDragMove
+    handleDragMove,
+    activeImage
   }
 }

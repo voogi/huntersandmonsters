@@ -1,28 +1,40 @@
 'use server';
 import { prisma } from '../../../prisma';
 import { revalidatePath } from 'next/cache';
-import { generateCards } from '@/utils';
+import { generateCards, moveInArray } from '@/utils';
 import { Card } from '@prisma/client';
+import { BattleState, PrivateData } from '@/app/models';
+import { getPlayerId } from '@/app/controller/user-controller';
 
 export async function startBattle() {
   const response: any = await prisma.battle.upsert({
     create: {
       id: 1,
       privateP1Data: {
+        cards: generateCards(4, '/hunter.png'),
+        deck: generateCards(20, '/hunter.png'),
+      },
+      privateP2Data: {
         cards: generateCards(4),
         deck: generateCards(20),
       },
       state: {
         boardCards: [],
+        opponentBoardCards: generateCards(2),
       },
     },
     update: {
       privateP1Data: {
+        cards: generateCards(4, '/hunter.png'),
+        deck: generateCards(20, '/hunter.png'),
+      },
+      privateP2Data: {
         cards: generateCards(4),
         deck: generateCards(20),
       },
       state: {
         boardCards: [],
+        opponentBoardCards: generateCards(2),
       },
     },
     where: {
@@ -33,12 +45,124 @@ export async function startBattle() {
   return response;
 }
 
-export async function drawCard(playerId: number) {
+export async function drawCard() {
+  const battle = await getBattle();
+  const playerId = await getPlayerId();
+  const isUserP1 = battle?.players[0].id === playerId;
+
+  const privateData = (isUserP1 ? battle.privateP1Data : battle.privateP2Data) as unknown as PrivateData;
+
+  if (!privateData?.deck || privateData.deck.length === 0) {
+    throw new Error('No cards in the deck');
+  }
+
+  const drawnCard = privateData.deck.shift();
+
+  if (!drawnCard) {
+    throw new Error('No drawn card!');
+  }
+
+  privateData.cards.push(drawnCard);
+
+  const userDataKey = isUserP1 ? 'privateP1Data' : 'privateP2Data';
+
+  await prisma.battle.update({
+    where: { id: battle.id },
+    data: {
+      [userDataKey]: privateData,
+    },
+  });
+
+  revalidatePath('/board');
+  return drawnCard;
+}
+
+export async function changeCardPositionOnTheBattlefield(cardId: number, newIndex: number) {
+  const battle = await getBattle();
+  const playerId = await getPlayerId();
+  const isUserP1 = battle?.players[0].id === playerId;
+  const state = battle.state as BattleState;
+
+  const cards = isUserP1 ? state.boardCards : state.opponentBoardCards;
+
+  const cardIdx = cards.findIndex(card => card.id === cardId);
+  if (cardIdx === -1) {
+    throw new Error(`Card ${cardId} not found on the battlefield`);
+  }
+
+  moveInArray(cards, cardIdx, newIndex);
+
+  const cardsKey = isUserP1 ? 'boardCards' : 'opponentBoardCards';
+  await prisma.battle.update({
+    where: { id: battle.id },
+    data: {
+      state: {
+        ...state,
+        [cardsKey]: cards
+      },
+    },
+  });
+
+  revalidatePath('/board');
+
+}
+
+export async function moveCardToBattlefield(cardId: number, newIndex: number) {
+  const battle = await getBattle();
+  const playerId = await getPlayerId();
+  const isUserP1 = battle?.players[0].id === playerId;
+
+  const privateData = (isUserP1 ? battle.privateP1Data : battle.privateP2Data) as unknown as PrivateData;
+
+  if (!privateData?.cards || privateData.cards.length === 0) {
+    throw new Error('No cards in the player\'s hand');
+  }
+
+  const cardIdx = privateData.cards.findIndex(card => card.id === cardId);
+  if (cardIdx === -1) {
+    throw new Error(`Card ${cardId} not found in the player\'s hand`);
+  }
+
+  const card: Card = privateData.cards.splice(cardIdx, 1)[0];
+
+  const state = battle.state as unknown as BattleState;
+
+  if (isUserP1) {
+    battle.state.boardCards.splice(newIndex, 0, card);
+  } else {
+    battle.state.opponentBoardCards.splice(newIndex, 0, card);
+  }
+
+  const userDataKey = isUserP1 ? 'privateP1Data' : 'privateP2Data';
+  const cardsKey = isUserP1 ? 'boardCards' : 'opponentBoardCards';
+  const cardsData = isUserP1 ? state.boardCards : state.opponentBoardCards;
+
+
+  await prisma.battle.update({
+    where: { id: battle.id },
+    data: {
+      [userDataKey]: privateData,
+      state: {
+        ...state,
+        [cardsKey]: cardsData,
+      },
+    },
+  });
+
+  revalidatePath('/board');
+}
+
+
+async function getBattle() {
+  const playerId = await getPlayerId();
   const battle = await prisma.battle.findFirst({
     where: {
       players: {
         some: { id: playerId },
       },
+    },
+    include: {
+      players: true,
     },
   });
 
@@ -46,30 +170,7 @@ export async function drawCard(playerId: number) {
     throw new Error('Battle not found for this player.');
   }
 
-  const privateP1Data = battle.privateP1Data as {
-    deck: Card[];
-    cards: Card[];
-  };
-
-  if (!privateP1Data?.deck || privateP1Data.deck.length === 0) {
-    throw new Error('No cards in the deck');
-  }
-
-  const drawnCard = privateP1Data.deck.shift();
-
-  if (!drawnCard) {
-    throw new Error('No drawn card!');
-  }
-
-  privateP1Data.cards.push(drawnCard);
-
-  await prisma.battle.update({
-    where: { id: battle.id },
-    data: {
-      privateP1Data: privateP1Data,
-    },
-  });
-
-  revalidatePath('/board');
-  return drawnCard;
+  return battle;
 }
+
+

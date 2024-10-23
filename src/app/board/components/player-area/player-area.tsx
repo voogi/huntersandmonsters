@@ -9,7 +9,7 @@ import { Button } from '@nextui-org/react';
 import { drawCard } from '@/app/controller/battle-controller';
 import { SortableContext } from '@dnd-kit/sortable';
 
-const PLAYER_AREA_ID: string = 'pCards';
+export const PLAYER_AREA_ID: string = 'pCards';
 
 export default function PlayerArea({
   cards,
@@ -43,7 +43,7 @@ export default function PlayerArea({
             color="primary"
             onPress={() => {
               startTransition(async () => {
-                await drawCard(player.id);
+                await drawCard();
               });
             }}
           >

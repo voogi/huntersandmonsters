@@ -1,26 +1,49 @@
 'use client';
-import React, {useTransition } from 'react';
+import React, { useTransition } from 'react';
 import PlayerArea from '@/app/board/components/player-area/player-area';
 import OpponentArea from '@/app/board/components/opponent-area/opponent-area';
 import BattleArea from '@/app/board/components/battle-area/battle-area';
 import HistoryArea from '@/app/board/components/history area/history-area';
 import { DndContext, DragOverlay } from '@dnd-kit/core';
 import { DraggableOverlayCardItem } from '@/app/components/draggable-card-item';
-import { saveState } from '@/app/board/actions';
 import { Button } from '@nextui-org/react';
-import { startBattle } from '@/app/controller/battle-controller';
+import {
+  changeCardPositionOnTheBattlefield,
+  moveCardToBattlefield,
+  startBattle,
+} from '@/app/controller/battle-controller';
+import { Card } from '@prisma/client';
 import { BoardProps, useBoardDnd } from '@/app/board/board.dnd.helpers';
+import { CardComponent } from '@/app/components/card/card.component';
 
-export default function BoardComponent({ boardCards, pCards, pDeck, player }: BoardProps) {
+
+export default function BoardComponent({ boardCards, opponentBoardCards, pCards, pDeck, player }: BoardProps) {
   const [, startTransition] = useTransition();
   const [isPendingRestart, startRestartTransition] = useTransition();
-  const save = () => {
+
+  const moveToBattleField = (cardId: number, newIndex: number) => {
     startTransition(async () => {
-      await saveState(1, items.pCards, items.boardCards);
+      await moveCardToBattlefield(cardId, newIndex);
     });
   };
 
-  const {act, handleDragStart, items, handleDragCancel, handleDragOver, handleDragEnd, dragDelta, handleDragMove}= useBoardDnd(pCards,boardCards, save);
+  const moveOnBattleField = (cardId: number, newIndex: number) => {
+    startTransition(async () => {
+      await changeCardPositionOnTheBattlefield(cardId, newIndex);
+    });
+  };
+
+  const {
+    act,
+    handleDragStart,
+    items,
+    handleDragCancel,
+    handleDragOver,
+    handleDragEnd,
+    dragDelta,
+    handleDragMove,
+    activeImage,
+  } = useBoardDnd(pCards, boardCards, moveToBattleField, moveOnBattleField);
 
   const restart = () => {
     startRestartTransition(async () => {
@@ -39,9 +62,16 @@ export default function BoardComponent({ boardCards, pCards, pDeck, player }: Bo
           onDragEnd={handleDragEnd}
         >
           <OpponentArea cards={[]} />
-          <BattleArea cards={items.boardCards} />
-          <PlayerArea cards={items.pCards} player={player} deck={pDeck} />
-          <DragOverlay>{act ? <DraggableOverlayCardItem id={act.id} dragDelta={dragDelta} /> : null}</DragOverlay>
+          <div
+            className={'bg-stone-700 flex-col flex-grow content-center w-full p-4 box-border flex justify-center shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] rounded-md'}>
+            <div className={'flex flex-row gap-4 min-h-72 w-full justify-center items-center'}>
+              {opponentBoardCards?.map((card: Card) => <CardComponent key={card.id} card={card} />)}
+            </div>
+            <BattleArea cards={items.boardCards || []} />
+          </div>
+          <PlayerArea cards={items.pCards || []} player={player} deck={pDeck} />
+          <DragOverlay>{act ?
+            <DraggableOverlayCardItem id={act.id} dragDelta={dragDelta} image={activeImage} /> : null}</DragOverlay>
         </DndContext>
         <div className={'flex'}>
           <Button isLoading={isPendingRestart} size={'md'} onPress={restart} color="primary">
