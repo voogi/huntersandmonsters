@@ -20,7 +20,6 @@ export const generateCards = (count: number, image = '/wolf.webp'): Card[] => {
       image: image,
       ability: null,
       health: Math.floor(Math.random() * 100) + 1,
-      defense: Math.floor(Math.random() * 50) + 1,
       attack: Math.floor(Math.random() * 75) + 1,
       tier: 1,
       rarity: Rarity.COMMON,

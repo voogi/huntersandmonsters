@@ -9,10 +9,11 @@ import { Card } from '@prisma/client';
 
 const ANIMATION_DURATION_MS = 750;
 
-export const DraggableCardItem = ({ card }: { card: Card }) => {
+export const DraggableCardItem = ({ card, disable }: { card: Card, disable?: boolean }) => {
   const sortable = useSortable({
     id: card?.id,
     transition: { duration: ANIMATION_DURATION_MS, easing: 'ease' },
+    disabled: disable
   });
 
   const { setNodeRef, attributes, transform, transition, listeners, isDragging } = sortable;
@@ -39,7 +40,7 @@ export const DraggableCardItem = ({ card }: { card: Card }) => {
           }}
           className={classNames('h-48 w-36 rounded-md bg-cover bg-center')}
         >
-          {card && <CardComponent card={card} />}
+          {card && <CardComponent enableAnimation={true} card={card} />}
         </motion.div>
       </motion.div>
     </div>

@@ -37,7 +37,9 @@ export type BoardProps = {
   boardCards: Card[];
   opponentBoardCards: Card[];
   pCards: Card[];
-  pDeck: Card[];
+  oCardsSize: number;
+  pDeckSize: number;
+  oDeckSize: number;
   player: PlayerWithResources;
 };
 

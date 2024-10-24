@@ -23,7 +23,7 @@ const supabase = createClient(
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1eGFudG16ZGZxYXFxa3lydHF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk3NzI5MTcsImV4cCI6MjA0NTM0ODkxN30.tgIfaKgO2s-H8oiMV9AjXVPUnB7evzv29sCwOnsZIeo',
 );
 
-export default function BoardComponent({ boardCards, opponentBoardCards, pCards, pDeck, player }: BoardProps) {
+export default function BoardComponent({ boardCards, opponentBoardCards, pCards, oCardsSize, pDeckSize, oDeckSize, player }: BoardProps) {
   const [, startTransition] = useTransition();
   const [isPendingRestart, startRestartTransition] = useTransition();
   let router = useRouter();
@@ -87,18 +87,18 @@ export default function BoardComponent({ boardCards, opponentBoardCards, pCards,
           onDragMove={handleDragMove}
           onDragEnd={handleDragEnd}
         >
-          <OpponentArea cards={[]} />
+          <OpponentArea cards={oCardsSize} deckSize={oDeckSize} />
           <div
             className={
               'bg-stone-700 flex-col flex-grow content-center w-full p-4 box-border flex justify-center shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] rounded-md'
             }
           >
             <div className={'flex flex-row gap-4 min-h-72 w-full justify-center items-center'}>
-              {opponentBoardCards?.map((card: Card) => <CardComponent key={card.id} card={card} />)}
+              {opponentBoardCards?.map((card: Card) => <CardComponent enableAnimation={false} key={card.id} card={card} />)}
             </div>
             <BattleArea cards={items.boardCards || []} />
           </div>
-          <PlayerArea cards={items.pCards || []} player={player} deck={pDeck} />
+          <PlayerArea cards={items.pCards || []} player={player} deckSize={pDeckSize} />
           <DragOverlay>
             {act ? <DraggableOverlayCardItem id={act.id} dragDelta={dragDelta} image={activeImage} /> : null}
           </DragOverlay>

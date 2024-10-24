@@ -8,23 +8,24 @@ import { Card } from '@prisma/client';
 import { Button } from '@nextui-org/react';
 import { drawCard } from '@/app/controller/battle-controller';
 import { SortableContext } from '@dnd-kit/sortable';
+import { CardComponent } from '@/app/components/card/card.component';
 
 export const PLAYER_AREA_ID: string = 'pCards';
 
 export default function PlayerArea({
   cards,
-  player,
-  deck,
+  player, deckSize,
 }: {
   cards: Card[];
   player: PlayerWithResources;
-  deck: Card[];
+  deckSize: number;
 }) {
   const { setNodeRef } = useDroppable({
     id: PLAYER_AREA_ID,
   });
 
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
+  const offset = 2;
 
   return (
     <div
@@ -32,23 +33,25 @@ export default function PlayerArea({
         'bg-stone-600 flex-grow content-center w-full p-4 box-border flex justify-center shadow-[0px_4px_6px_0px_rgba(0,_0,_0,_0.1)] rounded-md gap-3'
       }
     >
-      <div className={'flex- flex-col w-full'}>
+      <div className={'flex flex-col w-full'}>
         <div className={'flex justify-end'}>
           <PlayerResources resources={player?.resources} />
         </div>
-        <div>Player DECK - {deck?.length}</div>
+        <div>DECK - {deckSize}</div>
         <div>
-          <Button
-            size={'md'}
-            color="primary"
-            onPress={() => {
-              startTransition(async () => {
-                await drawCard();
-              });
-            }}
-          >
-            +
-          </Button>
+          <div style={{ position: 'relative'}}>
+            {Array.from({ length: 10 }).map((_, index) => (
+              <div
+                key={index}
+                style={{
+                  position: 'absolute',
+                  top: index * offset,
+                  left: index * offset,
+                  zIndex: deckSize - index,
+                }}
+              ><CardComponent enableAnimation={false} onlyImg={true} card={{image: 'back.png'}}/></div>
+            ))}
+          </div>
         </div>
         <SortableContext items={cards} id={PLAYER_AREA_ID}>
           <div ref={setNodeRef} className={'flex flex-row min-h-72 w-full justify-center items-center'}>

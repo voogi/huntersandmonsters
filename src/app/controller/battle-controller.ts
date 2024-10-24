@@ -15,8 +15,8 @@ export async function startBattle() {
         deck: generateCards(20, '/hunter.png'),
       },
       privateP2Data: {
-        cards: generateCards(4),
-        deck: generateCards(20),
+        cards: generateCards(4, '/back.png'),
+        deck: generateCards(20, '/back.png'),
       },
       state: {
         boardCards: [],
@@ -29,8 +29,8 @@ export async function startBattle() {
         deck: generateCards(20, '/hunter.png'),
       },
       privateP2Data: {
-        cards: generateCards(4),
-        deck: generateCards(20),
+        cards: generateCards(4, '/back.png'),
+        deck: generateCards(20, '/back.png'),
       },
       state: {
         boardCards: [],
