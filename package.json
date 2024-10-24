@@ -22,6 +22,7 @@
     "@nextui-org/theme": "^2.2.11",
     "@prisma/client": "^5.21.1",
     "@prisma/extension-pulse": "^1.2.0",
+    "@supabase/supabase-js": "^2.45.6",
     "classnames": "^2.5.1",
     "framer-motion": "~10.18.0",
     "next": "14.2.15",

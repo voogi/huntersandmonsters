@@ -1,5 +1,5 @@
 'use client';
-import React, { useTransition } from 'react';
+import React, { useEffect, useTransition } from 'react';
 import PlayerArea from '@/app/board/components/player-area/player-area';
 import OpponentArea from '@/app/board/components/opponent-area/opponent-area';
 import BattleArea from '@/app/board/components/battle-area/battle-area';
@@ -15,7 +15,10 @@ import {
 import { Card } from '@prisma/client';
 import { BoardProps, useBoardDnd } from '@/app/board/board.dnd.helpers';
 import { CardComponent } from '@/app/components/card/card.component';
+import { createClient } from '@supabase/supabase-js';
 
+const supabase = createClient('https://uuxantmzdfqaqqkyrtqz.supabase.co/',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1eGFudG16ZGZxYXFxa3lydHF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk3NzI5MTcsImV4cCI6MjA0NTM0ODkxN30.tgIfaKgO2s-H8oiMV9AjXVPUnB7evzv29sCwOnsZIeo');
 
 export default function BoardComponent({ boardCards, opponentBoardCards, pCards, pDeck, player }: BoardProps) {
   const [, startTransition] = useTransition();
@@ -32,6 +35,25 @@ export default function BoardComponent({ boardCards, opponentBoardCards, pCards,
       await changeCardPositionOnTheBattlefield(cardId, newIndex);
     });
   };
+
+  useEffect(() => {
+    const subscription = supabase
+      .channel('battle')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'battle'
+        },
+        (payload) => console.log(payload)
+      )
+      .subscribe();
+
+    return () => {
+      // supabase.removeSubscription(subscription);
+    };
+  }, []);
 
   const {
     act,

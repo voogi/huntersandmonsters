@@ -3,7 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import Header from '@/app/components/header/header';
 import Footer from '@/app/components/footer/footer';
-import { getStreams } from '@/app/components/streams';
+import { getStreams, Streams } from '@/app/components/streams';
 
 const anton = localFont({
   // src: "./fonts/badaboom.ttf",
@@ -23,7 +23,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
 
-  getStreams()
 
   return (
     <html lang="en">
