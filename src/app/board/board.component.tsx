@@ -16,6 +16,7 @@ import { Card } from '@prisma/client';
 import { BoardProps, useBoardDnd } from '@/app/board/board.dnd.helpers';
 import { CardComponent } from '@/app/components/card/card.component';
 import { createClient } from '@supabase/supabase-js';
+import { useRouter } from 'next/navigation';
 
 const supabase = createClient(
   'https://uuxantmzdfqaqqkyrtqz.supabase.co/',
@@ -25,6 +26,7 @@ const supabase = createClient(
 export default function BoardComponent({ boardCards, opponentBoardCards, pCards, pDeck, player }: BoardProps) {
   const [, startTransition] = useTransition();
   const [isPendingRestart, startRestartTransition] = useTransition();
+  let router = useRouter();
 
   const moveToBattleField = (cardId: number, newIndex: number) => {
     startTransition(async () => {
@@ -46,11 +48,16 @@ export default function BoardComponent({ boardCards, opponentBoardCards, pCards,
         {
           event: '*',
           schema: 'public',
+          table: 'Battle'
         },
-        (payload) => console.log(payload),
+        (payload) => router.refresh(),
       )
       .subscribe();
-  }, []);
+
+    return () => {
+      supabase.removeChannel(subscription);
+    };
+  }, [supabase]);
 
   const {
     act,
