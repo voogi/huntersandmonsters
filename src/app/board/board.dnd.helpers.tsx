@@ -29,6 +29,7 @@ const moveBetweenContainers = (items: { pCards: Card[], boardCards: Card[] },
 
 export type BoardProps = {
   boardCards: Card[];
+  opponentBoardCards: Card[];
   pCards: Card[];
   pDeck: Card[];
   player: PlayerWithResources;
@@ -98,16 +99,16 @@ export function useBoardDnd(pCards: Card[], boardCards: Card[], moveToBattleFiel
       return;
     }
 
+    if (newCardPosition[active.id as number] !== undefined) {
+      moveToBattleField(active.id as number, newCardPosition[active.id as number]);
+      setNewCardPosition({});
+    }
+
     if (active.id !== over.id) {
       const activeContainer = active.data.current?.sortable.containerId;
       const overContainer = over.data.current?.sortable.containerId || over.id;
       const activeIndex = active.data.current?.sortable.index;
       const overIndex = over.id in items ? items[overContainer as keyof typeof items].length + 1 : over.data.current?.sortable.index;
-
-      if (newCardPosition[active.id as number] !== undefined) {
-        moveToBattleField(active.id as number, newCardPosition[active.id as number]);
-        setNewCardPosition({});
-      }
 
       setItems((items) => {
         let newItems;
