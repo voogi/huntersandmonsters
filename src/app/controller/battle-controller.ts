@@ -81,11 +81,11 @@ export async function changeCardPositionOnTheBattlefield(cardId: number, newInde
   const battle = await getBattle();
   const playerId = await getPlayerId();
   const isUserP1 = battle?.players[0].id === playerId;
-  const state = battle.state as BattleState;
+  const state: BattleState = battle.state as unknown as BattleState;
 
   const cards = isUserP1 ? state.boardCards : state.opponentBoardCards;
 
-  const cardIdx = cards.findIndex(card => card.id === cardId);
+  const cardIdx = cards.findIndex((card) => card.id === cardId);
   if (cardIdx === -1) {
     throw new Error(`Card ${cardId} not found on the battlefield`);
   }
@@ -98,13 +98,12 @@ export async function changeCardPositionOnTheBattlefield(cardId: number, newInde
     data: {
       state: {
         ...state,
-        [cardsKey]: cards
+        [cardsKey]: cards,
       },
     },
   });
 
   revalidatePath('/board');
-
 }
 
 export async function moveCardToBattlefield(cardId: number, newIndex: number) {
@@ -115,28 +114,27 @@ export async function moveCardToBattlefield(cardId: number, newIndex: number) {
   const privateData = (isUserP1 ? battle.privateP1Data : battle.privateP2Data) as unknown as PrivateData;
 
   if (!privateData?.cards || privateData.cards.length === 0) {
-    throw new Error('No cards in the player\'s hand');
+    throw new Error("No cards in the player's hand");
   }
 
-  const cardIdx = privateData.cards.findIndex(card => card.id === cardId);
+  const cardIdx = privateData.cards.findIndex((card) => card.id === cardId);
   if (cardIdx === -1) {
     throw new Error(`Card ${cardId} not found in the player\'s hand`);
   }
 
   const card: Card = privateData.cards.splice(cardIdx, 1)[0];
 
-  const state = battle.state as unknown as BattleState;
+  const state: BattleState = battle.state as unknown as BattleState;
 
   if (isUserP1) {
-    battle.state.boardCards.splice(newIndex, 0, card);
+    state.boardCards.splice(newIndex, 0, card);
   } else {
-    battle.state.opponentBoardCards.splice(newIndex, 0, card);
+    state.opponentBoardCards.splice(newIndex, 0, card);
   }
 
   const userDataKey = isUserP1 ? 'privateP1Data' : 'privateP2Data';
   const cardsKey = isUserP1 ? 'boardCards' : 'opponentBoardCards';
   const cardsData = isUserP1 ? state.boardCards : state.opponentBoardCards;
-
 
   await prisma.battle.update({
     where: { id: battle.id },
@@ -151,7 +149,6 @@ export async function moveCardToBattlefield(cardId: number, newIndex: number) {
 
   revalidatePath('/board');
 }
-
 
 async function getBattle() {
   const playerId = await getPlayerId();
@@ -172,5 +169,3 @@ async function getBattle() {
 
   return battle;
 }
-
-
