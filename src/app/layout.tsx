@@ -3,6 +3,7 @@ import localFont from 'next/font/local';
 import './globals.css';
 import Header from '@/app/components/header/header';
 import Footer from '@/app/components/footer/footer';
+import { getStreams } from '@/app/components/streams';
 
 const anton = localFont({
   // src: "./fonts/badaboom.ttf",
@@ -21,6 +22,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  getStreams()
+
   return (
     <html lang="en">
       <body className={`${anton.className} antialiased p-2 flex flex-col`} style={{ minHeight: '100vh' }}>
