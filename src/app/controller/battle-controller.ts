@@ -98,7 +98,7 @@ export async function attackCard(cardId: number, targetCardId: number) {
 
   opponentCard.health -= card.attack;
   if(opponentCard.health <= 0) {
-    opponentCards.splice(opponentCards.indexOf(card), 1);
+    opponentCards.splice(opponentCards.indexOf(opponentCard), 1);
   }
 
   const cardsKey = isUserP1 ? 'boardCards' : 'opponentBoardCards';
