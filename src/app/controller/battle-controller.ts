@@ -77,6 +77,47 @@ export async function drawCard() {
   return drawnCard;
 }
 
+export async function attackCard(cardId: number, targetCardId: number) {
+  const battle = await getBattle();
+  const playerId = await getPlayerId();
+  const isUserP1 = battle?.players[0].id === playerId;
+  const state: BattleState = battle.state as unknown as BattleState;
+
+  const cards = isUserP1 ? state.boardCards : state.opponentBoardCards;
+  const opponentCards = isUserP1 ? state.opponentBoardCards : state.boardCards;
+
+  const card = cards.find((card) => card.id === cardId);
+  if (!card) {
+    throw new Error(`Card ${cardId} not found on the battlefield`);
+  }
+
+  const opponentCard = opponentCards.find((card) => card.id === targetCardId);
+  if (!opponentCard) {
+    throw new Error(`Card ${cardId} not found on the battlefield`);
+  }
+
+  opponentCard.health -= card.attack;
+  if(opponentCard.health <= 0) {
+    opponentCards.splice(opponentCards.indexOf(card), 1);
+  }
+
+  const cardsKey = isUserP1 ? 'boardCards' : 'opponentBoardCards';
+  const opponentCardsKey = isUserP1 ? 'opponentBoardCards' : 'boardCards';
+  await prisma.battle.update({
+    where: { id: battle.id },
+    data: {
+      state: {
+        ...state,
+        [cardsKey]: cards,
+        [opponentCardsKey]: opponentCards,
+      },
+    },
+  });
+
+  revalidatePath('/board');
+}
+
+
 export async function changeCardPositionOnTheBattlefield(cardId: number, newIndex: number) {
   const battle = await getBattle();
   const playerId = await getPlayerId();
