@@ -1,4 +1,5 @@
-import { Prisma } from '@prisma/client';
+import { Card, Prisma } from '@prisma/client';
+import { Event } from '@prisma/client';
 import { prisma } from '../../../prisma';
 import { getPlayerId } from '@/app/controller/user-controller';
 
@@ -29,6 +30,12 @@ export async function fetchBoardData() {
       },
     });
 
+    const events: Event[] = await prisma.event.findMany({
+      where: {
+        battleId: battle.id
+      }
+    })
+
     const state: any = typeof battle?.state === 'object' && battle.state !== null ? battle.state : {};
     const privateP1Data: any =
       typeof battle?.privateP1Data === 'object' && battle.privateP1Data !== null ? battle.privateP1Data : {};
@@ -43,9 +50,10 @@ export async function fetchBoardData() {
       opponentBoardCards: isUserP1 ? state.opponentBoardCards : state.boardCards,
       player,
       pCards: isUserP1 ? privateP1Data.cards : privateP2Data.cards,
-      oCardsSize: !isUserP1 ? privateP1Data.cards?.length : privateP2Data.cards?.length,
+      oCards: !isUserP1 ? privateP1Data.cards?.map((c: Card) => c.id) : privateP2Data.cards?.map((c: Card) => c.id),
       pDeckSize: isUserP1 ? privateP1Data.deck?.length : privateP2Data.deck?.length,
       oDeckSize: !isUserP1 ? privateP1Data.deck?.length : privateP2Data.deck?.length,
+      events
     };
   } catch (error) {
     console.error('Hiba történt az adatok lekérése közben:', error);

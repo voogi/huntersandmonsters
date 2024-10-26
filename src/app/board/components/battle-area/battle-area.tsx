@@ -14,7 +14,7 @@ export default function BattleArea({ cards }: { cards: Card[] }) {
   return (
 
       <SortableContext items={cards} id={BATTLE_AREA_ID}>
-        <div ref={setNodeRef} className={'flex flex-row gap-4 min-h-72 w-full justify-center items-center'}>
+        <div ref={setNodeRef} className={'flex flex-row gap-4 h-full min-h-20 w-full justify-center items-center'}>
           {cards?.map((card: Card) => <DraggableCardItem key={card.id} card={card} />)}
         </div>
       </SortableContext>

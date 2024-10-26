@@ -15,7 +15,7 @@ export async function startBattle() {
         deck: generateCards(20, '/hunter.png'),
       },
       privateP2Data: {
-        cards: generateCards(4, '/back.png'),
+        cards: generateCards(4, '/wolf.webp'),
         deck: generateCards(20, '/back.png'),
       },
       state: {
@@ -29,7 +29,7 @@ export async function startBattle() {
         deck: generateCards(20, '/hunter.png'),
       },
       privateP2Data: {
-        cards: generateCards(4, '/back.png'),
+        cards: generateCards(4, '/wolf.webp'),
         deck: generateCards(20, '/back.png'),
       },
       state: {
@@ -144,6 +144,19 @@ export async function changeCardPositionOnTheBattlefield(cardId: number, newInde
     },
   });
 
+  await prisma.event.create({
+    data: {
+      battleId: battle.id,
+      playerId,
+      battleEvent: 'REORDER_BOARD',
+      eventData: {
+        cardId,
+        oldIndex: cardIdx,
+        newIndex
+      }
+    }
+  })
+
   revalidatePath('/board');
 }
 
@@ -187,6 +200,19 @@ export async function moveCardToBattlefield(cardId: number, newIndex: number) {
       },
     },
   });
+
+  await prisma.event.create({
+    data: {
+      battleId: battle.id,
+      playerId,
+      battleEvent: 'PLAY_CARD',
+      eventData: {
+        card,
+        oldIndex: cardIdx,
+        newIndex
+      }
+    }
+  })
 
   revalidatePath('/board');
 }

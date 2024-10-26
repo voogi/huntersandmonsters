@@ -1,5 +1,6 @@
 import { arrayMove as dndKitArrayMove } from '@dnd-kit/sortable';
 import { Card } from '@prisma/client';
+import { Event } from '@prisma/client';
 import { PlayerWithResources } from '@/app/board/board.fetcher';
 import { useEffect, useState } from 'react';
 import { DragEndEvent, DragMoveEvent, DragOverEvent, DragStartEvent } from '@dnd-kit/core';
@@ -37,10 +38,11 @@ export type BoardProps = {
   boardCards: Card[];
   opponentBoardCards: Card[];
   pCards: Card[];
-  oCardsSize: number;
+  oCards: number[];
   pDeckSize: number;
   oDeckSize: number;
   player: PlayerWithResources;
+  events: Event[]
 };
 
 export function useBoardDnd(

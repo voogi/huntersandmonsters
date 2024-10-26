@@ -22,6 +22,14 @@ enum ResourceType {
   BLOOD_DROP
 }
 
+enum BattleEvent {
+  DRAW_CARD
+  PLAY_CARD
+  ATTACK_CARD
+  PASS
+  REORDER_BOARD
+}
+
 // Card modell definiálása
 model Card {
   id          Int         @id @default(autoincrement())
@@ -95,4 +103,14 @@ model Battle {
   privateP2Data Json     @default("{}")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  events        Event[]
+}
+
+model Event {
+  id          Int         @id @default(autoincrement())
+  battle      Battle      @relation(fields: [battleId], references: [id])
+  battleId    Int
+  battleEvent BattleEvent
+  eventData   Json        @default("{}")
+  playerId    Int
 }

@@ -54,7 +54,7 @@ export default function PlayerArea({
           </div>
         </div>
         <SortableContext items={cards} id={PLAYER_AREA_ID}>
-          <div ref={setNodeRef} className={'flex flex-row min-h-72 w-full justify-center items-center'}>
+          <div ref={setNodeRef} className={'flex flex-row w-full min-h-36 justify-center items-center'}>
             {cards?.map((card: Card) => <DraggableCardItem key={card.id} card={card} />)}
           </div>
         </SortableContext>

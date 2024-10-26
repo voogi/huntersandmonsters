@@ -1,4 +1,4 @@
-import { useSortable } from '@dnd-kit/sortable';
+import { defaultAnimateLayoutChanges, useSortable } from '@dnd-kit/sortable';
 import classNames from 'classnames';
 import { motion, useMotionValue, useSpring, useTransform, useVelocity } from 'framer-motion';
 import { CSS } from '@dnd-kit/utilities';
@@ -10,8 +10,17 @@ import { Card } from '@prisma/client';
 const ANIMATION_DURATION_MS = 750;
 
 export const DraggableCardItem = ({ card, disable }: { card: Card, disable?: boolean }) => {
+  function customAnimate(args) {
+    const {isSorting, wasDragging} = args;
+    if (isSorting || wasDragging) {
+      return defaultAnimateLayoutChanges(args);
+    }
+    return true;
+  }
+
   const sortable = useSortable({
     id: card?.id,
+    animateLayoutChanges : customAnimate,
     transition: { duration: ANIMATION_DURATION_MS, easing: 'ease' },
     disabled: disable
   });
@@ -19,13 +28,13 @@ export const DraggableCardItem = ({ card, disable }: { card: Card, disable?: boo
   const { setNodeRef, attributes, transform, transition, listeners, isDragging } = sortable;
 
   return (
-    <div ref={setNodeRef}>
+    <div ref={setNodeRef} className={'h-full'}>
       <motion.div
         style={{
           transform: CSS.Translate.toString(transform),
           transition,
         }}
-        className={classNames(isDragging && 'opacity-0')}
+        className={classNames(isDragging && 'opacity-0', 'h-full')}
         transition={{
           type: 'spring',
           duration: isDragging ? ANIMATION_DURATION_MS / 1000 : (ANIMATION_DURATION_MS / 1000) * 3,
@@ -38,9 +47,9 @@ export const DraggableCardItem = ({ card, disable }: { card: Card, disable?: boo
             transformStyle: 'preserve-3d',
             willChange: 'transform',
           }}
-          className={classNames('h-48 w-36 rounded-md bg-cover bg-center')}
+          className={classNames('h-full rounded-md bg-cover bg-center')}
         >
-          {card && <CardComponent enableAnimation={true} card={card} />}
+          {card && <CardComponent enableAnimation={!disable} card={card} />}
         </motion.div>
       </motion.div>
     </div>
