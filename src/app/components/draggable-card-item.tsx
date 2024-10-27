@@ -6,12 +6,25 @@ import { useEffect } from 'react';
 import { useDndContext } from '@dnd-kit/core';
 import { CardComponent } from '@/app/components/card/card.component';
 import { Card } from '@prisma/client';
+import { PlayerType } from '@/app/models';
 
 const ANIMATION_DURATION_MS = 750;
 
-export const DraggableCardItem = ({ card, disable }: { card: Card, disable?: boolean }) => {
-  function customAnimate(args) {
-    const {isSorting, wasDragging} = args;
+export const DraggableCardItem = ({
+  card,
+  disable,
+  onClick,
+  type,
+  selectedCards,
+}: {
+  card: Card;
+  disable?: boolean;
+  onClick?: any;
+  type: PlayerType;
+  selectedCards: any;
+}) => {
+  function customAnimate(args: any) {
+    const { isSorting, wasDragging } = args;
     if (isSorting || wasDragging) {
       return defaultAnimateLayoutChanges(args);
     }
@@ -20,9 +33,9 @@ export const DraggableCardItem = ({ card, disable }: { card: Card, disable?: boo
 
   const sortable = useSortable({
     id: card?.id,
-    animateLayoutChanges : customAnimate,
+    animateLayoutChanges: customAnimate,
     transition: { duration: ANIMATION_DURATION_MS, easing: 'ease' },
-    disabled: disable
+    disabled: disable,
   });
 
   const { setNodeRef, attributes, transform, transition, listeners, isDragging } = sortable;
@@ -49,7 +62,15 @@ export const DraggableCardItem = ({ card, disable }: { card: Card, disable?: boo
           }}
           className={classNames('h-full rounded-md bg-cover bg-center')}
         >
-          {card && <CardComponent enableAnimation={!disable} card={card} />}
+          {card && (
+            <CardComponent
+              selectedCards={selectedCards}
+              type={type}
+              onClick={onClick}
+              enableAnimation={!disable}
+              card={card}
+            />
+          )}
         </motion.div>
       </motion.div>
     </div>
@@ -89,7 +110,7 @@ export const DraggableOverlayCardItem = ({ id, dragDelta, image }: any) => {
             willChange: 'transform',
             rotateX,
             rotateY,
-            backgroundImage: `url(${image})`
+            backgroundImage: `url(${image})`,
           }}
           animate={{
             scale: isActive ? 1.5 : 1,

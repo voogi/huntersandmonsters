@@ -13,21 +13,33 @@ import {
   startBattle,
 } from '@/app/controller/battle-controller';
 import { BattleEvent, Card } from '@prisma/client';
-import { arrayMove, BoardProps, insertAtIndex, useBoardDnd } from '@/app/board/board.dnd.helpers';
+import { arrayMove, BoardProps, useBoardDnd } from '@/app/board/board.dnd.helpers';
 import { createClient } from '@supabase/supabase-js';
+import { AnimationControls } from 'framer-motion';
 import { Event } from '@prisma/client';
 import { SortableContext } from '@dnd-kit/sortable';
-import { animate } from 'framer-motion';
+import { battleAnimation, playCardAnimation } from '@/app/animations/board.animations';
+import { PlayerType } from '@/app/models';
 
 const supabase = createClient(
   'https://uuxantmzdfqaqqkyrtqz.supabase.co/',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1eGFudG16ZGZxYXFxa3lydHF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk3NzI5MTcsImV4cCI6MjA0NTM0ODkxN30.tgIfaKgO2s-H8oiMV9AjXVPUnB7evzv29sCwOnsZIeo',
 );
 
-export default function BoardComponent({ boardCards, opponentBoardCards, pCards, oCards, pDeckSize, oDeckSize, player, events }: BoardProps) {
+export default function BoardComponent({
+  boardCards,
+  opponentBoardCards,
+  pCards,
+  oCards,
+  pDeckSize,
+  oDeckSize,
+  player,
+  events,
+}: BoardProps) {
   const [, startTransition] = useTransition();
   const [isPendingRestart, startRestartTransition] = useTransition();
   const [oppCards, setOppCards] = useState(opponentBoardCards);
+  const [selectedCards, setSelectedCards] = useState<{ id: number; ref: any; controls: AnimationControls }[]>([]);
 
   const moveToBattleField = (cardId: number, newIndex: number) => {
     startTransition(async () => {
@@ -49,35 +61,24 @@ export default function BoardComponent({ boardCards, opponentBoardCards, pCards,
         {
           event: '*',
           schema: 'public',
-          table: 'Event'
+          table: 'Event',
         },
         (payload) => {
-          const event = payload.new as Event;
+          const event: any = payload.new as Event;
           if (event.playerId === player.id) {
             return;
           }
           if (event.eventData) {
             if (event.battleEvent === BattleEvent.PLAY_CARD) {
-              const cardDiv = document.getElementById('card-' + event.eventData.card.id);
-              let targetX = 0;
-              let targetY = 200;
-              if (opponentBoardCards.length > 0) {
-                const targetId = opponentBoardCards[event.eventData.newIndex].id;
-                const targetDiv = document.getElementById('card-' + targetId).getBoundingClientRect();
-                const sourceRect = cardDiv.getBoundingClientRect();
-                targetX = targetDiv.x - sourceRect.x;
-                targetY = targetDiv.y - sourceRect.y;
-              }
+              playCardAnimation(opponentBoardCards, event, () => {
+                setOppCards([...opponentBoardCards]);
+              });
+            }
 
-              if (cardDiv) {
-                animate([
-                  [cardDiv, { y: [0, targetY], x: [0, targetX] }, { type: 'tween' }],
-                  [cardDiv, { opacity: 0 }]])
-                  .then(() => {
-                    opponentBoardCards = insertAtIndex(opponentBoardCards, event.eventData.newIndex, event.eventData.card);
-                    setOppCards([...opponentBoardCards]);
-                  });
-              }
+            if (event.battleEvent === BattleEvent.ATTACK_CARD) {
+              battleAnimation(selectedCards, () => {
+                setSelectedCards([]);
+              });
             }
 
             if (event.battleEvent === BattleEvent.REORDER_BOARD) {
@@ -93,6 +94,12 @@ export default function BoardComponent({ boardCards, opponentBoardCards, pCards,
       supabase.removeChannel(subscription);
     };
   }, [supabase]);
+
+  useEffect(() => {
+    battleAnimation(selectedCards, () => {
+      setSelectedCards([]);
+    });
+  }, [selectedCards]);
 
   const {
     act,
@@ -110,6 +117,17 @@ export default function BoardComponent({ boardCards, opponentBoardCards, pCards,
     startRestartTransition(async () => {
       await startBattle();
     });
+  };
+
+  const handleCardClick = (id: number, ref: HTMLDivElement, controls: AnimationControls, type: any) => {
+    if (ref === null) {
+      setSelectedCards((prev: any) => prev.filter((item: any) => item.id !== id));
+    } else {
+      setSelectedCards((prev: any) => {
+        const updated = [...prev, { id, ref, controls, type }];
+        return updated.length > 2 ? updated.slice(1) : updated;
+      });
+    }
   };
 
   return (
@@ -135,10 +153,19 @@ export default function BoardComponent({ boardCards, opponentBoardCards, pCards,
           >
             <SortableContext items={oppCards} id={'opponentBoardCards'}>
               <div className={'flex flex-row gap-4 h-full min-h-20 mb-5 w-full justify-center items-center'}>
-                {oppCards?.map((card: Card) => <DraggableCardItem disable={true} key={card.id} card={card} />)}
+                {oppCards?.map((card: Card) => (
+                  <DraggableCardItem
+                    selectedCards={selectedCards}
+                    onClick={handleCardClick}
+                    type={PlayerType.OPPONENT}
+                    disable={true}
+                    key={card.id}
+                    card={card}
+                  />
+                ))}
               </div>
             </SortableContext>
-            <BattleArea cards={items.boardCards || []} />
+            <BattleArea selectedCards={selectedCards} onClick={handleCardClick} cards={items.boardCards || []} />
           </div>
           <PlayerArea cards={items.pCards || []} player={player} deckSize={pDeckSize} />
           <DragOverlay>

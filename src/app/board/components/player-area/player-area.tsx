@@ -5,8 +5,6 @@ import { useDroppable } from '@dnd-kit/core';
 import PlayerResources from '@/app/board/components/player-area/components/player-resources';
 import { PlayerWithResources } from '@/app/board/board.fetcher';
 import { Card } from '@prisma/client';
-import { Button } from '@nextui-org/react';
-import { drawCard } from '@/app/controller/battle-controller';
 import { SortableContext } from '@dnd-kit/sortable';
 import { CardComponent } from '@/app/components/card/card.component';
 
@@ -14,7 +12,8 @@ export const PLAYER_AREA_ID: string = 'pCards';
 
 export default function PlayerArea({
   cards,
-  player, deckSize,
+  player,
+  deckSize,
 }: {
   cards: Card[];
   player: PlayerWithResources;
@@ -39,7 +38,7 @@ export default function PlayerArea({
         </div>
         <div>DECK - {deckSize}</div>
         <div>
-          <div style={{ position: 'relative'}}>
+          <div style={{ position: 'relative' }}>
             {Array.from({ length: 10 }).map((_, index) => (
               <div
                 key={index}
@@ -49,13 +48,15 @@ export default function PlayerArea({
                   left: index * offset,
                   zIndex: deckSize - index,
                 }}
-              ><CardComponent enableAnimation={false} onlyImg={true} card={{image: 'back.png'}}/></div>
+              >
+                <CardComponent type={'PLAYER'} enableAnimation={false} onlyImg={true} card={{ image: 'back.png' }} />
+              </div>
             ))}
           </div>
         </div>
         <SortableContext items={cards} id={PLAYER_AREA_ID}>
           <div ref={setNodeRef} className={'flex flex-row w-full min-h-36 justify-center items-center'}>
-            {cards?.map((card: Card) => <DraggableCardItem key={card.id} card={card} />)}
+            {cards?.map((card: Card) => <DraggableCardItem type={'PLAYER'} key={card.id} card={card} />)}
           </div>
         </SortableContext>
       </div>

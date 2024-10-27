@@ -15,7 +15,6 @@ export const rarityOptions = [
   { key: 'LEGENDARY', label: 'Legendary' },
 ];
 
-
 export interface BattleState {
   boardCards: Card[];
   opponentBoardCards: Card[];
@@ -24,4 +23,9 @@ export interface BattleState {
 export interface PrivateData {
   cards: Card[];
   deck: Card[];
+}
+
+export enum PlayerType {
+  PLAYER = 'PLAYER',
+  OPPONENT = 'OPPONENT',
 }
