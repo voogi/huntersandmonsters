@@ -1,5 +1,6 @@
 import { animate } from 'framer-motion';
 import { insertAtIndex } from '@/app/board/board.dnd.helpers';
+import { Card } from '@prisma/client';
 
 export const battleAnimation = (selectedCards: any[], onComplete: () => void) => {
   if (selectedCards.length === 2) {
@@ -64,7 +65,7 @@ export const battleAnimation = (selectedCards: any[], onComplete: () => void) =>
   }
 };
 
-export const playCardAnimation = (cards: any[], event: any, onComplete: () => void) => {
+export const playCardAnimation = (cards: any[], event: any, onComplete: (newOppCards: Card[]) => void) => {
   const cardDiv = document.getElementById('card-' + event.eventData.card.id);
   let targetX = 0;
   let targetY = 200;
@@ -84,7 +85,7 @@ export const playCardAnimation = (cards: any[], event: any, onComplete: () => vo
       [cardDiv, { opacity: 0 }],
     ]).then(() => {
       cards = insertAtIndex(cards, event.eventData.newIndex, event.eventData.card);
-      onComplete();
+      onComplete(cards);
     });
   }
 };

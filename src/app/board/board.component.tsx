@@ -70,7 +70,8 @@ export default function BoardComponent({
           }
           if (event.eventData) {
             if (event.battleEvent === BattleEvent.PLAY_CARD) {
-              playCardAnimation(opponentBoardCards, event, () => {
+              playCardAnimation(opponentBoardCards, event, (newOppCards: Card[]) => {
+                opponentBoardCards = newOppCards;
                 setOppCards([...opponentBoardCards]);
               });
             }
