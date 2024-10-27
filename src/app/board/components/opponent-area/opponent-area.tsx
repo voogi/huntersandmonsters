@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import { CardComponent } from '@/app/components/card/card.component';
+import { PlayerType } from '@/app/models';
 
 export default function OpponentArea({cards, deckSize}: { cards: number[], deckSize: number }) {
   const offset = 2;
@@ -13,7 +14,7 @@ export default function OpponentArea({cards, deckSize}: { cards: number[], deckS
       <div className={'flex flex-row gap-12 w-1/2'}>
         <div id='opponent-cards' className={'flex flex-row w-full min-h-36 justify-center items-center'}>
           {cards.map((_, index) => (
-            <CardComponent enableAnimation={false} onlyImg={true} key={index} card={{ id: _ ,image: '/back.png' }} />
+            <CardComponent type={PlayerType.OPPONENT} enableAnimation={false} onlyImg={true} key={index} card={{ id: _ ,image: '/back.png' }} />
           ))}
         </div>
         <div className={'pr-3'}>
@@ -28,7 +29,7 @@ export default function OpponentArea({cards, deckSize}: { cards: number[], deckS
                   left: index * offset,
                   zIndex: deckSize - index,
                 }}
-              ><CardComponent enableAnimation={false} onlyImg={true} card={{ image: 'back.png' }} /></div>
+              ><CardComponent type={PlayerType.OPPONENT} enableAnimation={false} onlyImg={true} card={{ image: 'back.png' }} /></div>
             ))}
           </div>
           <div className={'flex justify-end'}>

@@ -8,6 +8,7 @@ import { DndContext, DragOverlay, MeasuringStrategy } from '@dnd-kit/core';
 import { DraggableCardItem, DraggableOverlayCardItem } from '@/app/components/draggable-card-item';
 import { Button } from '@nextui-org/react';
 import {
+  attackCard,
   changeCardPositionOnTheBattlefield,
   moveCardToBattlefield,
   startBattle,
@@ -16,10 +17,10 @@ import { BattleEvent, Card } from '@prisma/client';
 import { arrayMove, BoardProps, useBoardDnd } from '@/app/board/board.dnd.helpers';
 import { createClient } from '@supabase/supabase-js';
 import { AnimationControls } from 'framer-motion';
-import { Event } from '@prisma/client';
 import { SortableContext } from '@dnd-kit/sortable';
 import { battleAnimation, playCardAnimation } from '@/app/animations/board.animations';
 import { PlayerType } from '@/app/models';
+
 
 const supabase = createClient(
   'https://uuxantmzdfqaqqkyrtqz.supabase.co/',
@@ -97,9 +98,12 @@ export default function BoardComponent({
   }, [supabase]);
 
   useEffect(() => {
-    battleAnimation(selectedCards, () => {
-      setSelectedCards([]);
-    });
+    if (selectedCards.length === 2) {
+      attackCard(selectedCards[0].id, selectedCards[1].id);
+      battleAnimation(selectedCards, () => {
+        setSelectedCards([]);
+      });
+    }
   }, [selectedCards]);
 
   const {

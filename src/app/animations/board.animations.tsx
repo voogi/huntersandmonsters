@@ -3,7 +3,6 @@ import { insertAtIndex } from '@/app/board/board.dnd.helpers';
 import { Card } from '@prisma/client';
 
 export const battleAnimation = (selectedCards: any[], onComplete: () => void) => {
-  if (selectedCards.length === 2) {
     const [{ ref: ref1, controls: controls1 }, { ref: ref2, controls: controls2 }] = selectedCards;
 
     const { top: top1, left: left1 } = ref1.getBoundingClientRect();
@@ -62,7 +61,6 @@ export const battleAnimation = (selectedCards: any[], onComplete: () => void) =>
       .then(() => {
         onComplete();
       });
-  }
 };
 
 export const playCardAnimation = (cards: any[], event: any, onComplete: (newOppCards: Card[]) => void) => {

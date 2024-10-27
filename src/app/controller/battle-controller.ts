@@ -103,6 +103,7 @@ export async function attackCard(cardId: number, targetCardId: number) {
 
   const cardsKey = isUserP1 ? 'boardCards' : 'opponentBoardCards';
   const opponentCardsKey = isUserP1 ? 'opponentBoardCards' : 'boardCards';
+
   await prisma.battle.update({
     where: { id: battle.id },
     data: {
@@ -112,6 +113,18 @@ export async function attackCard(cardId: number, targetCardId: number) {
         [opponentCardsKey]: opponentCards,
       },
     },
+  });
+
+  await prisma.event.create({
+    data: {
+      battleId: battle.id,
+      playerId,
+      battleEvent: 'ATTACK_CARD',
+      eventData: {
+        cardId,
+        targetCardId
+      }
+    }
   });
 
   revalidatePath('/board');
