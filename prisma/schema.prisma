@@ -30,6 +30,13 @@ enum BattleEvent {
   REORDER_BOARD
 }
 
+enum BattlePhase {
+  DRAW_PHASE
+  PLANNING_PHASE
+  BATTLE_PHASE
+  END_PHASE
+}
+
 // Card modell definiálása
 model Card {
   id          Int         @id @default(autoincrement())
@@ -96,14 +103,16 @@ model Deck_Card {
 }
 
 model Battle {
-  id            Int      @id @default(autoincrement())
-  players       Player[]
-  state         Json
-  privateP1Data Json     @default("{}")
-  privateP2Data Json     @default("{}")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  events        Event[]
+  id             Int         @id @default(autoincrement())
+  players        Player[]
+  state          Json
+  privateP1Data  Json        @default("{}")
+  privateP2Data  Json        @default("{}")
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  events         Event[]
+  phase          BattlePhase @default(DRAW_PHASE)
+  actualPLayerId Int?
 }
 
 model Event {

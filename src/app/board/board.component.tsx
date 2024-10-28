@@ -21,7 +21,6 @@ import { SortableContext } from '@dnd-kit/sortable';
 import { battleAnimation, playCardAnimation } from '@/app/animations/board.animations';
 import { PlayerType } from '@/app/models';
 
-
 const supabase = createClient(
   'https://uuxantmzdfqaqqkyrtqz.supabase.co/',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV1eGFudG16ZGZxYXFxa3lydHF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk3NzI5MTcsImV4cCI6MjA0NTM0ODkxN30.tgIfaKgO2s-H8oiMV9AjXVPUnB7evzv29sCwOnsZIeo',
@@ -78,9 +77,15 @@ export default function BoardComponent({
             }
 
             if (event.battleEvent === BattleEvent.ATTACK_CARD) {
-              battleAnimation(selectedCards, () => {
-                setSelectedCards([]);
-              });
+              battleAnimation(
+                {
+                  id: event.eventData.cardId,
+                  targetId: event.eventData.targetCardId,
+                },
+                () => {
+                  setSelectedCards([]);
+                },
+              );
             }
 
             if (event.battleEvent === BattleEvent.REORDER_BOARD) {
@@ -100,9 +105,15 @@ export default function BoardComponent({
   useEffect(() => {
     if (selectedCards.length === 2) {
       attackCard(selectedCards[0].id, selectedCards[1].id);
-      battleAnimation(selectedCards, () => {
-        setSelectedCards([]);
-      });
+      battleAnimation(
+        {
+          id: selectedCards[0].id,
+          targetId: selectedCards[1].id,
+        },
+        () => {
+          setSelectedCards([]);
+        },
+      );
     }
   }, [selectedCards]);
 
