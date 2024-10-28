@@ -4,6 +4,7 @@ import { DraggableCardItem } from '@/app/components/draggable-card-item';
 import { useDroppable } from '@dnd-kit/core';
 import { Card } from '@prisma/client';
 import { SortableContext } from '@dnd-kit/sortable';
+import { PlayerType } from '@/app/models';
 
 export const BATTLE_AREA_ID: string = 'boardCards';
 
@@ -25,7 +26,7 @@ export default function BattleArea({
         {cards?.map((card: Card) => (
           <DraggableCardItem
             selectedCards={selectedCards}
-            type={'PLAYER'}
+            type={PlayerType.PLAYER}
             onClick={onClick}
             disable={true}
             key={card.id}
