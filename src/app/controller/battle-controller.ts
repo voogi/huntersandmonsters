@@ -5,6 +5,7 @@ import { generateCards, moveInArray } from '@/utils';
 import { Card } from '@prisma/client';
 import { BattleState, PrivateData } from '@/app/models';
 import { getPlayerId } from '@/app/controller/user-controller';
+import { addToQueue } from '@/queue';
 
 export async function startBattle() {
   const response: any = await prisma.battle.upsert({
@@ -104,27 +105,30 @@ export async function attackCard(cardId: number, targetCardId: number) {
   const cardsKey = isUserP1 ? 'boardCards' : 'opponentBoardCards';
   const opponentCardsKey = isUserP1 ? 'opponentBoardCards' : 'boardCards';
 
-  await prisma.battle.update({
-    where: { id: battle.id },
-    data: {
-      state: {
-        ...state,
-        [cardsKey]: cards,
-        [opponentCardsKey]: opponentCards,
-      },
-    },
-  });
+  await addToQueue(async () => {
 
-  await prisma.event.create({
-    data: {
-      battleId: battle.id,
-      playerId,
-      battleEvent: 'ATTACK_CARD',
-      eventData: {
-        cardId,
-        targetCardId
-      }
-    }
+    await prisma.battle.update({
+      where: { id: battle.id },
+      data: {
+        state: {
+          ...state,
+          [cardsKey]: cards,
+          [opponentCardsKey]: opponentCards,
+        },
+      },
+    });
+
+    await prisma.event.create({
+      data: {
+        battleId: battle.id,
+        playerId,
+        battleEvent: 'ATTACK_CARD',
+        eventData: {
+          cardId,
+          targetCardId,
+        },
+      },
+    });
   });
 
   revalidatePath('/board');
@@ -147,28 +151,31 @@ export async function changeCardPositionOnTheBattlefield(cardId: number, newInde
   moveInArray(cards, cardIdx, newIndex);
 
   const cardsKey = isUserP1 ? 'boardCards' : 'opponentBoardCards';
-  await prisma.battle.update({
-    where: { id: battle.id },
-    data: {
-      state: {
-        ...state,
-        [cardsKey]: cards,
-      },
-    },
-  });
 
-  await prisma.event.create({
-    data: {
-      battleId: battle.id,
-      playerId,
-      battleEvent: 'REORDER_BOARD',
-      eventData: {
-        cardId,
-        oldIndex: cardIdx,
-        newIndex
-      }
-    }
-  })
+  await addToQueue(async () => {
+    await prisma.battle.update({
+      where: { id: battle.id },
+      data: {
+        state: {
+          ...state,
+          [cardsKey]: cards,
+        },
+      },
+    });
+
+    await prisma.event.create({
+      data: {
+        battleId: battle.id,
+        playerId,
+        battleEvent: 'REORDER_BOARD',
+        eventData: {
+          cardId,
+          oldIndex: cardIdx,
+          newIndex,
+        },
+      },
+    });
+  });
 
   revalidatePath('/board');
 }
@@ -203,29 +210,31 @@ export async function moveCardToBattlefield(cardId: number, newIndex: number) {
   const cardsKey = isUserP1 ? 'boardCards' : 'opponentBoardCards';
   const cardsData = isUserP1 ? state.boardCards : state.opponentBoardCards;
 
-  await prisma.battle.update({
-    where: { id: battle.id },
-    data: {
-      [userDataKey]: privateData,
-      state: {
-        ...state,
-        [cardsKey]: cardsData,
+  await addToQueue(async () => {
+    await prisma.battle.update({
+      where: { id: battle.id },
+      data: {
+        [userDataKey]: privateData,
+        state: {
+          ...state,
+          [cardsKey]: cardsData,
+        },
       },
-    },
-  });
+    });
 
-  await prisma.event.create({
-    data: {
-      battleId: battle.id,
-      playerId,
-      battleEvent: 'PLAY_CARD',
-      eventData: {
-        card,
-        oldIndex: cardIdx,
-        newIndex
+    await prisma.event.create({
+      data: {
+        battleId: battle.id,
+        playerId,
+        battleEvent: 'PLAY_CARD',
+        eventData: {
+          card,
+          oldIndex: cardIdx,
+          newIndex
+        }
       }
-    }
-  })
+    })
+  });
 
   revalidatePath('/board');
 }
