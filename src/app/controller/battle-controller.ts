@@ -2,7 +2,7 @@
 import { prisma } from '../../../prisma';
 import { revalidatePath } from 'next/cache';
 import { generateCards, moveInArray } from '@/utils';
-import { Card } from '@prisma/client';
+import { BattlePhase, Card } from '@prisma/client';
 import { BattleState, PrivateData } from '@/app/models';
 import { getPlayerId } from '@/app/controller/user-controller';
 import { addToQueue } from '@/queue';
@@ -48,6 +48,9 @@ export async function startBattle() {
 
 export async function drawCard() {
   const battle = await getBattle();
+  if(battle.phase !== BattlePhase.DRAW_PHASE) {
+    throw new Error(`You can only draw a card in a Draw Phase!`);
+  }
   const playerId = await getPlayerId();
   const isUserP1 = battle?.players[0].id === playerId;
 
@@ -80,6 +83,9 @@ export async function drawCard() {
 
 export async function attackCard(cardId: number, targetCardId: number) {
   const battle = await getBattle();
+  if(battle.phase !== BattlePhase.BATTLE_PHASE) {
+    throw new Error(`You can only attack a card in a Battle Phase!`);
+  }
   const playerId = await getPlayerId();
   const isUserP1 = battle?.players[0].id === playerId;
   const state: BattleState = battle.state as unknown as BattleState;
@@ -137,6 +143,9 @@ export async function attackCard(cardId: number, targetCardId: number) {
 
 export async function changeCardPositionOnTheBattlefield(cardId: number, newIndex: number) {
   const battle = await getBattle();
+  if(battle.phase !== BattlePhase.PLANNING_PHASE) {
+    throw new Error(`You can only change the cards position on the battlefield in a Planning Phase!`);
+  }
   const playerId = await getPlayerId();
   const isUserP1 = battle?.players[0].id === playerId;
   const state: BattleState = battle.state as unknown as BattleState;
@@ -182,6 +191,9 @@ export async function changeCardPositionOnTheBattlefield(cardId: number, newInde
 
 export async function moveCardToBattlefield(cardId: number, newIndex: number) {
   const battle = await getBattle();
+  if(battle.phase !== BattlePhase.PLANNING_PHASE) {
+    throw new Error(`You can only put down cards on the battlefield in a Planning Phase!`);
+  }
   const playerId = await getPlayerId();
   const isUserP1 = battle?.players[0].id === playerId;
 
@@ -257,4 +269,15 @@ async function getBattle() {
   }
 
   return battle;
+}
+
+export async function changePhase(newPhase: BattlePhase) {
+  const battle = await getBattle();
+  await prisma.battle.update({
+    where: { id: battle.id },
+    data: {
+      phase: newPhase,
+    },
+  });
+  revalidatePath('/board');
 }

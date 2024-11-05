@@ -7,6 +7,7 @@ export function CardComponent({
   card,
   onlyImg,
   enableAnimation = true,
+  enableSelection = true,
   onClick,
   type,
   selectedCards,
@@ -14,6 +15,7 @@ export function CardComponent({
   card: any;
   onlyImg?: boolean;
   enableAnimation: boolean;
+  enableSelection: boolean;
   onClick?: any;
   selectedCards: any;
   type: PlayerType;
@@ -56,6 +58,9 @@ export function CardComponent({
   }, [selectedCards]);
 
   const handleCardClick = () => {
+    if(!enableSelection) {
+      return;
+    }
     const isAlreadySelected = selectedCards?.some((selected: any) => selected.id === card.id);
 
     if (isAlreadySelected) {

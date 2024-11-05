@@ -1,5 +1,5 @@
 import { arrayMove as dndKitArrayMove } from '@dnd-kit/sortable';
-import { Card } from '@prisma/client';
+import { BattlePhase, Card } from '@prisma/client';
 import { Event } from '@prisma/client';
 import { PlayerWithResources } from '@/app/board/board.fetcher';
 import { useEffect, useState } from 'react';
@@ -42,7 +42,8 @@ export type BoardProps = {
   pDeckSize: number;
   oDeckSize: number;
   player: PlayerWithResources;
-  events: Event[]
+  events: Event[],
+  phase: BattlePhase
 };
 
 export function useBoardDnd(

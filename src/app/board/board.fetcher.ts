@@ -53,7 +53,8 @@ export async function fetchBoardData() {
       oCards: !isUserP1 ? privateP1Data.cards?.map((c: Card) => c.id) : privateP2Data.cards?.map((c: Card) => c.id),
       pDeckSize: isUserP1 ? privateP1Data.deck?.length : privateP2Data.deck?.length,
       oDeckSize: !isUserP1 ? privateP1Data.deck?.length : privateP2Data.deck?.length,
-      events
+      events,
+      phase: battle.phase
     };
   } catch (error) {
     console.error('Hiba történt az adatok lekérése közben:', error);

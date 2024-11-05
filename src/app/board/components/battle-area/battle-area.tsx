@@ -2,7 +2,7 @@
 import React from 'react';
 import { DraggableCardItem } from '@/app/components/draggable-card-item';
 import { useDroppable } from '@dnd-kit/core';
-import { Card } from '@prisma/client';
+import { BattlePhase, Card } from '@prisma/client';
 import { SortableContext } from '@dnd-kit/sortable';
 import { PlayerType } from '@/app/models';
 
@@ -12,10 +12,12 @@ export default function BattleArea({
   cards,
   onClick,
   selectedCards,
+  phase
 }: {
   cards: Card[];
   onClick: any;
   selectedCards: any;
+  phase: BattlePhase;
 }) {
   const { setNodeRef } = useDroppable({
     id: BATTLE_AREA_ID,
@@ -28,6 +30,7 @@ export default function BattleArea({
             selectedCards={selectedCards}
             type={PlayerType.PLAYER}
             onClick={onClick}
+            enableSelection={phase === BattlePhase.BATTLE_PHASE}
             disable={true}
             key={card.id}
             card={card}

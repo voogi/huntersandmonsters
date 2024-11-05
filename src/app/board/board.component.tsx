@@ -13,13 +13,14 @@ import {
   moveCardToBattlefield,
   startBattle,
 } from '@/app/controller/battle-controller';
-import { BattleEvent, Card } from '@prisma/client';
+import { BattleEvent, BattlePhase, Card } from '@prisma/client';
 import { arrayMove, BoardProps, useBoardDnd } from '@/app/board/board.dnd.helpers';
 import { createClient } from '@supabase/supabase-js';
 import { AnimationControls } from 'framer-motion';
 import { SortableContext } from '@dnd-kit/sortable';
 import { battleAnimation, playCardAnimation } from '@/app/animations/board.animations';
 import { PlayerType } from '@/app/models';
+import PhaseSelector from '@/app/board/components/phase-selector';
 
 const supabase = createClient(
   'https://uuxantmzdfqaqqkyrtqz.supabase.co/',
@@ -35,6 +36,7 @@ export default function BoardComponent({
   oDeckSize,
   player,
   events,
+  phase
 }: BoardProps) {
   const [, startTransition] = useTransition();
   const [isPendingRestart, startRestartTransition] = useTransition();
@@ -43,13 +45,21 @@ export default function BoardComponent({
 
   const moveToBattleField = (cardId: number, newIndex: number) => {
     startTransition(async () => {
-      await moveCardToBattlefield(cardId, newIndex);
+      try {
+        await moveCardToBattlefield(cardId, newIndex);
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
   const moveOnBattleField = (cardId: number, newIndex: number) => {
     startTransition(async () => {
-      await changeCardPositionOnTheBattlefield(cardId, newIndex);
+      try {
+        await changeCardPositionOnTheBattlefield(cardId, newIndex);
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
@@ -104,16 +114,20 @@ export default function BoardComponent({
 
   useEffect(() => {
     if (selectedCards.length === 2) {
-      attackCard(selectedCards[0].id, selectedCards[1].id);
-      battleAnimation(
-        {
-          id: selectedCards[0].id,
-          targetId: selectedCards[1].id,
-        },
-        () => {
-          setSelectedCards([]);
-        },
-      );
+      try {
+        attackCard(selectedCards[0].id, selectedCards[1].id);
+        battleAnimation(
+          {
+            id: selectedCards[0].id,
+            targetId: selectedCards[1].id,
+          },
+          () => {
+            setSelectedCards([]);
+          },
+        );
+      } catch (error) {
+        console.error(error);
+      }
     }
   }, [selectedCards]);
 
@@ -136,6 +150,9 @@ export default function BoardComponent({
   };
 
   const handleCardClick = (id: number, ref: HTMLDivElement, controls: AnimationControls, type: any) => {
+    if(phase !== BattlePhase.BATTLE_PHASE) {
+      return;
+    }
     if (ref === null) {
       setSelectedCards((prev: any) => prev.filter((item: any) => item.id !== id));
     } else {
@@ -174,6 +191,7 @@ export default function BoardComponent({
                     selectedCards={selectedCards}
                     onClick={handleCardClick}
                     type={PlayerType.OPPONENT}
+                    enableSelection={phase === BattlePhase.BATTLE_PHASE}
                     disable={true}
                     key={card.id}
                     card={card}
@@ -181,9 +199,9 @@ export default function BoardComponent({
                 ))}
               </div>
             </SortableContext>
-            <BattleArea selectedCards={selectedCards} onClick={handleCardClick} cards={items.boardCards || []} />
+            <BattleArea selectedCards={selectedCards} onClick={handleCardClick} cards={items.boardCards || []} phase={phase}/>
           </div>
-          <PlayerArea cards={items.pCards || []} player={player} deckSize={pDeckSize} />
+          <PlayerArea cards={items.pCards || []} player={player} deckSize={pDeckSize} phase={phase}/>
           <DragOverlay>
             {act ? <DraggableOverlayCardItem id={act.id} dragDelta={dragDelta} image={activeImage} /> : null}
           </DragOverlay>
@@ -192,6 +210,7 @@ export default function BoardComponent({
           <Button isLoading={isPendingRestart} size={'md'} onPress={restart} color="primary">
             Restart
           </Button>
+          <PhaseSelector currentPhase={phase} />
         </div>
       </div>
       <HistoryArea events={events} />

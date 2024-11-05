@@ -13,12 +13,14 @@ const ANIMATION_DURATION_MS = 750;
 export const DraggableCardItem = ({
   card,
   disable,
+  enableSelection = true,
   onClick,
   type,
   selectedCards,
 }: {
   card: Card;
   disable?: boolean;
+  enableSelection: boolean;
   onClick?: any;
   type: PlayerType;
   selectedCards: any;
@@ -68,6 +70,7 @@ export const DraggableCardItem = ({
               type={type}
               onClick={onClick}
               enableAnimation={!disable}
+              enableSelection={enableSelection}
               card={card}
             />
           )}

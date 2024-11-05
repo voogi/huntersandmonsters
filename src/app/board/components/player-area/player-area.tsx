@@ -4,7 +4,7 @@ import { DraggableCardItem } from '@/app/components/draggable-card-item';
 import { useDroppable } from '@dnd-kit/core';
 import PlayerResources from '@/app/board/components/player-area/components/player-resources';
 import { PlayerWithResources } from '@/app/board/board.fetcher';
-import { Card } from '@prisma/client';
+import { BattlePhase, Card } from '@prisma/client';
 import { SortableContext } from '@dnd-kit/sortable';
 import { CardComponent } from '@/app/components/card/card.component';
 
@@ -14,10 +14,12 @@ export default function PlayerArea({
   cards,
   player,
   deckSize,
+  phase
 }: {
   cards: Card[];
   player: PlayerWithResources;
   deckSize: number;
+  phase: BattlePhase;
 }) {
   const { setNodeRef } = useDroppable({
     id: PLAYER_AREA_ID,
@@ -56,7 +58,10 @@ export default function PlayerArea({
         </div>
         <SortableContext items={cards} id={PLAYER_AREA_ID}>
           <div ref={setNodeRef} className={'flex flex-row w-full min-h-36 justify-center items-center'}>
-            {cards?.map((card: Card) => <DraggableCardItem type={'PLAYER'} key={card.id} card={card} />)}
+            {cards?.map((card: Card) => <DraggableCardItem type={'PLAYER'} key={card.id}
+                                                           card={card}
+                                                           enableSelection={false}
+                                                           disable={phase !== BattlePhase.PLANNING_PHASE} />)}
           </div>
         </SortableContext>
       </div>
